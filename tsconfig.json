@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/strictest",
+  "include": ["src"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": false,
+    "checkJs": false,
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "types": ["vite/client"],
+    "jsx": "react-jsx"
+  }
+}
