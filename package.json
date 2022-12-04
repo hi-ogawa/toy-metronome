@@ -7,6 +7,8 @@
     "dev-setup": "run-s build:audioworklet",
     "build": "run-s build:*",
     "build:audioworklet": "esbuild ./src/audioworklet/index.ts --bundle --outdir=./src/audioworklet/build",
+    "build:vite": "vite build",
+    "tsc": "tsc",
     "lint": "run-s lint:*",
     "lint-check": "run-s lint-check:*",
     "lint:prettier": "prettier --write --cache .",
