@@ -1,15 +1,14 @@
+import { Transition } from "@headlessui/react";
 import { mapValues } from "lodash";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
+import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 
 // TODO
-// - AudioContext on/off is too slow
-//   - `resume` as early as possible and control master volume to simulate on/off
-//   - this would also help avoid glitch clicks
 // - tempo deduction from tap
 // - UI patterns
 //   - nob
@@ -18,12 +17,25 @@ import { useStableRef } from "./utils/use-stable-ref";
 //   - how to pass "transpose" signal (position, bar, etc...)
 //   - wasm implementation
 // - hmr-friendly audio context initialization?
-// - deploy
-//   - test on mobile
 
 export function App() {
+  return (
+    <>
+      <Toaster />
+      <AppInner />
+    </>
+  );
+}
+
+const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
+
+function AppInner() {
+  //
+  // initialize AudioContext and AudioNode
+  //
   const [audio] = React.useState(() => {
     const audioContext = new AudioContext();
+    // since AudioContext.resume/suspend is clicky, we control master gain for on/off
     const masterGainNode = new GainNode(audioContext, { gain: 0 });
     masterGainNode.connect(audioContext.destination);
     return { audioContext, masterGainNode };
@@ -34,60 +46,113 @@ export function App() {
     onSuccess: (metronomeNode) => {
       metronomeNode.connect(audio.masterGainNode);
     },
-  });
-
-  const form = useForm({
-    defaultValues: {
-      audioState: audio.audioContext.state,
+    onError: () => {
+      toast.error("failed to load metronome");
     },
   });
-  const { audioState } = form.watch();
 
-  // synchronize audioState
+  //
+  // synchronize AudioContext.state with UI
+  //
+  const [audioState, setAudioState] = React.useState(
+    () => audio.audioContext.state
+  );
+
   useAnimationFrameLoop(() => {
     if (audioState !== audio.audioContext.state) {
-      form.setValue("audioState", audio.audioContext.state);
+      setAudioState(audio.audioContext.state);
+    }
+    if (audio.audioContext.state === "running") {
+      toast.dismiss(WEB_AUDIO_WARNING);
     }
   });
+
+  // suggest enabling AudioContext when autoplay is not allowed
+  React.useEffect(() => {
+    if (audio.audioContext.state !== "running") {
+      toast(
+        "Web Audio is disabled before user interaction.\nPlease start it either by hitting a space key or toggling a top-right icon.",
+        { icon: "⚠️", duration: Infinity, id: WEB_AUDIO_WARNING }
+      );
+    }
+  }, []);
+
+  //
+  // metronome state
+  //
+  const [isOn, setIsOn] = React.useState(false);
+
+  async function toggle() {
+    audio.masterGainNode.gain.linearRampToValueAtTime(
+      isOn ? 0 : 1,
+      audio.audioContext.currentTime + 0.1
+    );
+    setIsOn(!isOn);
+  }
 
   // keyboard shortcut
   useDocumentEvent("keyup", (e) => {
     if (e.key === " ") {
-      togglePlay();
+      e.stopPropagation();
+      e.preventDefault();
+      if (audioState === "suspended") {
+        audio.audioContext.resume();
+        return;
+      }
+      toggle();
     }
   });
 
-  //
-  // handlers
-  //
-
-  async function togglePlay() {
-    if (audioState === "suspended") {
-      await audio.audioContext.resume();
-      audio.masterGainNode.gain.linearRampToValueAtTime(
-        1,
-        audio.audioContext.currentTime + 0.1
-      );
-      metronomeNode.value?.connect(audio.masterGainNode);
-    } else {
-      audio.audioContext.suspend();
-    }
-  }
-
   return (
-    <div className="h-full w-full flex justify-center items-center">
-      <div className="w-xl flex flex-col items-center gap-4">
+    <div className="h-full w-full flex justify-center items-center relative">
+      <div className="absolute right-2 top-2">
         <button
-          className="border bg-gray-200 w-sm px-1 py-0.5 uppercase"
-          disabled={audioState === "closed" || !metronomeNode.value}
-          onClick={() => togglePlay()}
+          onClick={() => {
+            if (audioState === "suspended") {
+              audio.audioContext.resume();
+            } else if (audioState === "running") {
+              audio.audioContext.suspend();
+            }
+          }}
         >
-          {audioState === "suspended" ? "start" : "stop"}
+          {audioState === "suspended" && (
+            <span className="i-ri-volume-mute-line w-6 h-6"></span>
+          )}
+          {audioState === "running" && (
+            <span className="i-ri-volume-up-line w-6 h-6"></span>
+          )}
         </button>
-        {metronomeNode.value && (
-          <MetronomdeNodeComponent node={metronomeNode.value} />
-        )}
       </div>
+      {metronomeNode.value && (
+        <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
+          <MetronomdeNodeComponent node={metronomeNode.value} />
+          <button
+            className="btn btn-primary w-full flex justify-center items-center py-0.5"
+            disabled={audioState !== "running"}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              toggle();
+            }}
+          >
+            {isOn ? (
+              <span className="i-ri-pause-line w-6 h-6"></span>
+            ) : (
+              <span className="i-ri-play-line w-6 h-6"></span>
+            )}
+          </button>
+        </div>
+      )}
+      <Transition
+        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-white"
+        show={metronomeNode.loading}
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <span className="spinner w-10 h-10 !border-4" />
+      </Transition>
     </div>
   );
 }
@@ -124,9 +189,10 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
         control={form.control}
         name={name}
         render={({ field }) => (
-          <div className="w-sm flex flex-col gap-1">
-            <span className="flex gap-1">
-              <span>{label} = </span>
+          <div className="w-full flex flex-col gap-2">
+            <span className="flex gap-2">
+              <span>{label}</span>
+              <span>=</span>
               <input
                 className="border text-center mono w-[80px]"
                 type="number"
@@ -168,17 +234,25 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
 function useMetronomeNode({
   audioContext,
   onSuccess,
+  onError,
 }: {
   audioContext: AudioContext;
   onSuccess: (node: AudioWorkletNode) => void;
+  onError: (e: unknown) => void;
 }) {
   const onSuccessRef = useStableRef(onSuccess);
+  const onErrorRef = useStableRef(onError);
 
   return useAsync(async () => {
-    await audioContext.audioWorklet.addModule(AUDIOWORKLET_URL);
-    const node = new AudioWorkletNode(audioContext, "metronome");
-    onSuccessRef.current(node);
-    return node;
+    try {
+      await audioContext.audioWorklet.addModule(AUDIOWORKLET_URL);
+      const node = new AudioWorkletNode(audioContext, "metronome");
+      onSuccessRef.current(node);
+      return node;
+    } catch (e) {
+      onErrorRef.current(e);
+      throw e;
+    }
   });
 }
 

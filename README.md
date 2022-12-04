@@ -14,6 +14,8 @@ pnpm build
 pnpm release:production
 ```
 
+![image](https://user-images.githubusercontent.com/4232207/205483273-69ad535d-b79e-4a24-82b6-44a90cf4307b.png)
+
 ## references
 
 - https://webaudio.github.io/web-audio-api
