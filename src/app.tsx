@@ -1,6 +1,6 @@
 import { Transition } from "@headlessui/react";
 import { useLocalStorage } from "@rehooks/local-storage";
-import { mapValues } from "lodash";
+import { mapValues, range, sum } from "lodash";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
@@ -235,6 +235,8 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
                   value={field.value}
                   onChange={(e) => setValue(e.target.valueAsNumber)}
                 />
+                <span className="flex-1"></span>
+                {name === "bpm" && <BpmDetectionButton onChange={setValue} />}
               </span>
               <input
                 className="w-full"
@@ -251,6 +253,43 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
       />
     );
   }
+}
+
+function BpmDetectionButton({
+  onChange,
+}: {
+  onChange: (value: number) => void;
+}) {
+  const [times, setTimes] = React.useState<number[]>([]);
+
+  function onClick() {
+    const now = Date.now();
+    const newTimes = [...times, now].filter((t) => now - t < 20000).slice(-12);
+    const bpm = deriveBpm(newTimes);
+    if (bpm) {
+      onChange(bpm);
+    }
+    setTimes(newTimes);
+  }
+
+  return (
+    <button
+      title="Tap it to derive BPM"
+      className="btn btn-ghost flex items-center"
+      onClick={() => onClick()}
+    >
+      <span className="i-ri-fingerprint-line w-4 h-4"></span>
+    </button>
+  );
+}
+
+function deriveBpm(times: number[]): number | undefined {
+  if (times.length <= 4) return;
+  const avg_msec =
+    sum(range(times.length - 1).map((i) => times[i + 1] - times[i])) /
+    (times.length - 1);
+  const inv_hz = avg_msec / 1000 / 60;
+  return Math.floor(1 / inv_hz);
 }
 
 //
