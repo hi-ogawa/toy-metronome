@@ -9,16 +9,6 @@ import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 
-// TODO
-// - tempo deduction from tap
-// - UI patterns
-//   - nob
-//   - slider
-// - AudioWorkletProcessor
-//   - how to pass "transpose" signal (position, bar, etc...)
-//   - wasm implementation
-// - hmr-friendly audio context initialization?
-
 export function App() {
   return (
     <>
