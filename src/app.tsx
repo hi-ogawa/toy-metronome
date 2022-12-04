@@ -108,6 +108,7 @@ function AppInner() {
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-2 top-2">
         <button
+          className="btn btn-ghost flex items-center"
           onClick={() => {
             if (audioState === "suspended") {
               audio.audioContext.resume();
@@ -222,7 +223,7 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
 
           return (
             <div className="w-full flex flex-col gap-2">
-              <span className="flex gap-2">
+              <span className="flex gap-2 items-center">
                 <span>{label}</span>
                 <span>=</span>
                 <input

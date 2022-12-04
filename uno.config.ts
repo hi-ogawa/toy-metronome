@@ -6,6 +6,8 @@ import {
   transformerVariantGroup,
 } from "unocss";
 
+// copied from https://github.com/hi-ogawa/youtube-dl-web-v2/blob/ca7c08ca6b144c235bdc4c7e307a0468052aa6fa/packages/app/uno.config.ts
+
 export default defineConfig({
   theme: {
     colors: {
@@ -33,6 +35,10 @@ export default defineConfig({
       cursor-pointer
       transition
       disabled:(cursor-not-allowed opacity-50)
+    `,
+    "btn-ghost": `
+      not-disabled:hover:(text-primary-hover)
+      not-disabled:active:(text-primary-active)
     `,
     "btn-primary": `
       text-primary-content
