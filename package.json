@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "clean": "rm -rf dist .vercel/output",
     "dev": "pnpm dev-setup && run-p dev:*",
     "dev:vite": "vite --no-clearScreen",
     "dev:audioworklet": "npm run build:audioworklet -- --watch",
@@ -8,13 +9,16 @@
     "build": "run-s build:*",
     "build:audioworklet": "esbuild ./src/audioworklet/index.ts --bundle --outdir=./src/audioworklet/build",
     "build:vite": "vite build",
+    "build:vercel": "bash misc/vercel/build.sh",
     "tsc": "tsc",
     "lint": "run-s lint:*",
     "lint-check": "run-s lint-check:*",
     "lint:prettier": "prettier --write --cache .",
     "lint-check:prettier": "prettier --check --cache .",
     "lint:eslint": "npm run lint-check:eslint -- --fix",
-    "lint-check:eslint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --ext .js,.jsx,.ts,.tsx"
+    "lint-check:eslint": "eslint . --cache --cache-location node_modules/.cache/.eslintcache --ext .js,.jsx,.ts,.tsx",
+    "release": "vercel deploy --prebuilt .",
+    "release:production": "vercel deploy --prebuilt . --prod"
   },
   "dependencies": {
     "@types/lodash": "^4.14.191",

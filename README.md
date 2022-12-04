@@ -3,8 +3,15 @@
 Experimenting with Web Audio API `AudioWorklet`.
 
 ```sh
+# development
 pnpm i
 pnpm dev
+
+# release
+vercel projects add metronome-hiro18181
+vercel link -p metronome-hiro18181
+pnpm build
+pnpm release:production
 ```
 
 ## references
