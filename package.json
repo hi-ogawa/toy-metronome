@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.4",
+    "@rehooks/local-storage": "^2.4.4",
     "@types/lodash": "^4.14.191",
     "eslint": "^8.29.0",
     "lodash": "^4.17.21",

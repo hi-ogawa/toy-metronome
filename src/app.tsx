@@ -1,4 +1,5 @@
 import { Transition } from "@headlessui/react";
+import { useLocalStorage } from "@rehooks/local-storage";
 import { mapValues } from "lodash";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -157,12 +158,28 @@ function AppInner() {
   );
 }
 
+const STORAGE_PREFIX = "metronome-audiot-param";
+
 function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
-  const params = normalizeAudioParamMap(node.parameters);
+  const params = React.useMemo(
+    () => normalizeAudioParamMap(node.parameters),
+    []
+  );
+
+  const storages = mapValues(params, (v, k) =>
+    useLocalStorage<number>(`${STORAGE_PREFIX}-${k}`, v.defaultValue)
+  );
+
+  React.useEffect(() => {
+    for (const [k, [v]] of Object.entries(storages)) {
+      params[k].value = v;
+    }
+  }, []);
+
   const form = useForm<Record<string, number>>({
     // 0.1 will appear as 0.10000000149011612 (probably due to single-to-double precision conversion)
-    defaultValues: mapValues(params, (v) =>
-      Number(v.defaultValue.toPrecision(5))
+    defaultValues: mapValues(storages, ([storageValue]) =>
+      Number(storageValue.toPrecision(5))
     ),
   });
 
@@ -174,6 +191,10 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     </>
   );
 
+  //
+  // render utils
+  //
+
   function renderField({
     name,
     label,
@@ -184,44 +205,48 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     step: number;
   }) {
     const param = params[name];
+    const [, setStorage] = storages[name];
+
     return (
       <Controller
         control={form.control}
         name={name}
-        render={({ field }) => (
-          <div className="w-full flex flex-col gap-2">
-            <span className="flex gap-2">
-              <span>{label}</span>
-              <span>=</span>
+        render={({ field }) => {
+          function setValue(newValue: number) {
+            if (Number.isFinite(newValue)) {
+              param.value = newValue;
+              field.onChange(newValue);
+              setStorage(newValue);
+            }
+          }
+
+          return (
+            <div className="w-full flex flex-col gap-2">
+              <span className="flex gap-2">
+                <span>{label}</span>
+                <span>=</span>
+                <input
+                  className="border text-center mono w-[80px]"
+                  type="number"
+                  min={param.minValue}
+                  max={param.maxValue}
+                  step={step}
+                  value={field.value}
+                  onChange={(e) => setValue(e.target.valueAsNumber)}
+                />
+              </span>
               <input
-                className="border text-center mono w-[80px]"
-                type="number"
+                className="w-full"
+                type="range"
                 min={param.minValue}
                 max={param.maxValue}
                 step={step}
                 value={field.value}
-                onChange={(e) => {
-                  const newValue = e.target.valueAsNumber;
-                  param.value = newValue;
-                  field.onChange(newValue);
-                }}
+                onChange={(e) => setValue(e.target.valueAsNumber)}
               />
-            </span>
-            <input
-              className="w-full"
-              type="range"
-              min={param.minValue}
-              max={param.maxValue}
-              step={step}
-              value={field.value}
-              onChange={(e) => {
-                const newValue = e.target.valueAsNumber;
-                param.value = newValue;
-                field.onChange(newValue);
-              }}
-            />
-          </div>
-        )}
+            </div>
+          );
+        }}
       />
     );
   }

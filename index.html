@@ -7,6 +7,10 @@
       name="viewport"
       content="width=device-width, height=device-height, initial-scale=1.0"
     />
+    <!-- hack for https://github.com/rehooks/local-storage/blob/db301e64d3db82f75775bdb477ca42feb5e3e49b/src/local-storage-events.ts#L14 -->
+    <script>
+      window.global = window;
+    </script>
   </head>
   <body>
     <div id="root"></div>
