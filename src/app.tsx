@@ -102,7 +102,6 @@ function AppInner() {
   return (
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-3 top-3 flex gap-3">
-        <ThemeButton />
         <button
           className="btn btn-ghost flex items-center"
           onClick={() => {
@@ -120,6 +119,14 @@ function AppInner() {
             <span className="i-ri-volume-up-line w-6 h-6"></span>
           )}
         </button>
+        <ThemeButton />
+        <a
+          className="flex items-center btn btn-ghost"
+          href="https://github.com/hi-ogawa/toy-metronome"
+          target="_blank"
+        >
+          <span className="i-ri-github-line w-6 h-6"></span>
+        </a>
       </div>
       {metronomeNode.value && (
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
@@ -301,7 +308,7 @@ function ThemeButton() {
       <span
         className={cls(
           theme === "dark" ? "i-ri-sun-line" : "i-ri-moon-line",
-          "w-5 h-5"
+          "w-6 h-6"
         )}
       ></span>
     </button>
