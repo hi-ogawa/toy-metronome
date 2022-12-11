@@ -5,19 +5,13 @@ import {
   transformerDirectives,
   transformerVariantGroup,
 } from "unocss";
+import { antdPreset } from "./src/styles/antd-preset";
 
-// copied from https://github.com/hi-ogawa/youtube-dl-web-v2/blob/ca7c08ca6b144c235bdc4c7e307a0468052aa6fa/packages/app/uno.config.ts
+// based on https://github.com/hi-ogawa/youtube-dl-web-v2/blob/ca7c08ca6b144c235bdc4c7e307a0468052aa6fa/packages/app/uno.config.ts
 
 export default defineConfig({
-  theme: {
-    colors: {
-      primary: "#1890ff",
-      primaryHover: "#40a9ff",
-      primaryActive: "#096dd9",
-      primaryContent: "white",
-    },
-  },
   presets: [
+    antdPreset(),
     presetUno(),
     presetIcons({
       extraProperties: {
@@ -37,14 +31,14 @@ export default defineConfig({
       disabled:(cursor-not-allowed opacity-50)
     `,
     "btn-ghost": `
-      not-disabled:hover:(text-primary-hover)
-      not-disabled:active:(text-primary-active)
+      not-disabled:hover:(text-[var(--colorPrimaryHover)])
+      not-disabled:active:(text-[var(--colorPrimaryActive)])
     `,
     "btn-primary": `
-      text-primary-content
-      bg-primary
-      not-disabled:hover:bg-primary-hover
-      not-disabled:active:bg-primary-active
+      text-white
+      bg-[var(--colorPrimary)]
+      not-disabled:hover:bg-[var(--colorPrimaryHover)]
+      not-disabled:active:bg-[var(--colorPrimaryActive)]
     `,
   },
   transformers: [transformerDirectives(), transformerVariantGroup()],

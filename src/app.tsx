@@ -8,11 +8,16 @@ import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
+import { useThemeState } from "./utils/use-theme-state";
 
 export function App() {
   return (
     <>
-      <Toaster />
+      <Toaster
+        toastOptions={{
+          className: "!bg-[var(--colorBgElevated)] !text-[var(--colorText)]",
+        }}
+      />
       <AppInner />
     </>
   );
@@ -96,7 +101,8 @@ function AppInner() {
 
   return (
     <div className="h-full w-full flex justify-center items-center relative">
-      <div className="absolute right-2 top-2">
+      <div className="absolute right-3 top-3 flex gap-3">
+        <ThemeButton />
         <button
           className="btn btn-ghost flex items-center"
           onClick={() => {
@@ -136,7 +142,7 @@ function AppInner() {
         </div>
       )}
       <Transition
-        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-white"
+        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-[var(--colorBgElevated)]"
         show={metronomeNode.loading}
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -282,6 +288,26 @@ function deriveBpm(times: number[]): number | undefined {
   return Math.floor(1 / inv_hz);
 }
 
+function ThemeButton() {
+  const [theme, setTheme] = useThemeState();
+  return (
+    <button
+      className="flex items-center btn btn-ghost"
+      disabled={!theme}
+      onClick={() => {
+        setTheme(theme === "dark" ? "light" : "dark");
+      }}
+    >
+      <span
+        className={cls(
+          theme === "dark" ? "i-ri-sun-line" : "i-ri-moon-line",
+          "w-5 h-5"
+        )}
+      ></span>
+    </button>
+  );
+}
+
 //
 // utils
 //
@@ -337,4 +363,8 @@ function useDocumentEvent<K extends keyof DocumentEventMap>(
       document.removeEventListener(type, handler);
     };
   });
+}
+
+function cls(...values: unknown[]): string {
+  return values.filter(Boolean).join(" ");
 }
