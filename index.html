@@ -11,6 +11,24 @@
     <script>
       window.global = window;
     </script>
+    <!-- initialize light/dark theme as early as possible (cf. src/utils/use-theme-state.ts) -->
+    <script>
+      function __getTheme() {
+        return window.localStorage.getItem("theme") || "light";
+      }
+      function __setTheme(theme) {
+        window.localStorage.setItem("theme", theme);
+        __applyTheme(theme);
+      }
+      function __applyTheme(theme) {
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+      __applyTheme(__getTheme());
+    </script>
   </head>
   <body>
     <div id="root"></div>
