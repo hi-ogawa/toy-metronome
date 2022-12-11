@@ -13,7 +13,11 @@ import { useThemeState } from "./utils/use-theme-state";
 export function App() {
   return (
     <>
-      <Toaster />
+      <Toaster
+        toastOptions={{
+          className: "!bg-[var(--colorBgElevated)] !text-[var(--colorText)]",
+        }}
+      />
       <AppInner />
     </>
   );
@@ -138,7 +142,7 @@ function AppInner() {
         </div>
       )}
       <Transition
-        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-[var(--colorBgContainer)]"
+        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-[var(--colorBgElevated)]"
         show={metronomeNode.loading}
         enterFrom="opacity-0"
         enterTo="opacity-100"
