@@ -2,7 +2,7 @@ import { Transition } from "@headlessui/react";
 import { useLocalStorage } from "@rehooks/local-storage";
 import { mapValues, range, sum } from "lodash";
 import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
@@ -89,8 +89,9 @@ function AppInner() {
   // keyboard shortcut
   useDocumentEvent("keyup", (e) => {
     if (e.key === " ") {
-      e.stopPropagation();
+      // prevent space key to trigger button click
       e.preventDefault();
+      e.stopPropagation();
       if (audioState === "suspended") {
         audio.audioContext.resume();
         return;
@@ -186,6 +187,31 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
       Number(storageValue.toPrecision(5))
     ),
   });
+  const formValues = form.watch();
+
+  function onChange(name: string, value: number) {
+    const param = params[name];
+    const [, setStorage] = storages[name];
+    if (Number.isFinite(value)) {
+      param.value = value;
+      form.setValue(name, value);
+      setStorage(value);
+    }
+  }
+
+  useDocumentEvent("keyup", (e) => {
+    const bpm = Math.floor(formValues["bpm"] / 10) * 10;
+    if (e.key === "j") {
+      e.preventDefault();
+      e.stopPropagation();
+      onChange("bpm", bpm - 10);
+    }
+    if (e.key === "k") {
+      e.preventDefault();
+      e.stopPropagation();
+      onChange("bpm", bpm + 10);
+    }
+  });
 
   return (
     <>
@@ -209,51 +235,36 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     step: number;
   }) {
     const param = params[name];
-    const [, setStorage] = storages[name];
-
+    const value = formValues[name];
     return (
-      <Controller
-        control={form.control}
-        name={name}
-        render={({ field }) => {
-          function setValue(newValue: number) {
-            if (Number.isFinite(newValue)) {
-              param.value = newValue;
-              field.onChange(newValue);
-              setStorage(newValue);
-            }
-          }
-
-          return (
-            <div className="w-full flex flex-col gap-2">
-              <span className="flex gap-2 items-center">
-                <span>{label}</span>
-                <span>=</span>
-                <input
-                  className="border text-center mono w-[80px]"
-                  type="number"
-                  min={param.minValue}
-                  max={param.maxValue}
-                  step={step}
-                  value={field.value}
-                  onChange={(e) => setValue(e.target.valueAsNumber)}
-                />
-                <span className="flex-1"></span>
-                {name === "bpm" && <BpmDetectionButton onChange={setValue} />}
-              </span>
-              <input
-                className="w-full"
-                type="range"
-                min={param.minValue}
-                max={param.maxValue}
-                step={step}
-                value={field.value}
-                onChange={(e) => setValue(e.target.valueAsNumber)}
-              />
-            </div>
-          );
-        }}
-      />
+      <div className="w-full flex flex-col gap-2">
+        <span className="flex gap-2 items-center">
+          <span>{label}</span>
+          <span>=</span>
+          <input
+            className="border text-center mono w-[80px]"
+            type="number"
+            min={param.minValue}
+            max={param.maxValue}
+            step={step}
+            value={value}
+            onChange={(e) => onChange(name, e.target.valueAsNumber)}
+          />
+          <span className="flex-1"></span>
+          {name === "bpm" && (
+            <BpmDetectionButton onChange={(value) => onChange(name, value)} />
+          )}
+        </span>
+        <input
+          className="w-full"
+          type="range"
+          min={param.minValue}
+          max={param.maxValue}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(name, e.target.valueAsNumber)}
+        />
+      </div>
     );
   }
 }
