@@ -88,11 +88,10 @@ function AppInner() {
 
   // keyboard shortcut
   useDocumentEvent("keyup", (e) => {
-    // skip when button already has focus since space-key would trigger click by default
-    if (documentHasInputFocus()) {
-      return;
-    }
     if (e.key === " ") {
+      // prevent space key to trigger button click
+      e.preventDefault();
+      e.stopPropagation();
       if (audioState === "suspended") {
         audio.audioContext.resume();
         return;
@@ -201,14 +200,15 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
   }
 
   useDocumentEvent("keyup", (e) => {
-    if (documentHasInputFocus()) {
-      return;
-    }
     const bpm = Math.floor(formValues["bpm"] / 10) * 10;
     if (e.key === "j") {
+      e.preventDefault();
+      e.stopPropagation();
       onChange("bpm", bpm - 10);
     }
     if (e.key === "k") {
+      e.preventDefault();
+      e.stopPropagation();
       onChange("bpm", bpm + 10);
     }
   });
@@ -381,13 +381,6 @@ function useDocumentEvent<K extends keyof DocumentEventMap>(
       document.removeEventListener(type, handler);
     };
   });
-}
-
-function documentHasInputFocus() {
-  return (
-    document.activeElement &&
-    ["button", "input"].includes(document.activeElement?.tagName.toLowerCase())
-  );
 }
 
 function cls(...values: unknown[]): string {
