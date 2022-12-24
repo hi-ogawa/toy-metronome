@@ -1,11 +1,12 @@
 import { Transition } from "@headlessui/react";
 import { useLocalStorage } from "@rehooks/local-storage";
-import { mapValues, range, sum } from "lodash";
+import { identity, mapValues, range, sum } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
+import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 import { useThemeState } from "./utils/use-theme-state";
@@ -206,17 +207,35 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
       e.stopPropagation();
       onChange("bpm", bpm - 10);
     }
-    if (e.key === "k") {
+    if (e.key === "l") {
       e.preventDefault();
       e.stopPropagation();
       onChange("bpm", bpm + 10);
+    }
+
+    const db = Math.round(gainToDecibel(formValues["gain"]));
+    if (e.key === "u") {
+      e.preventDefault();
+      e.stopPropagation();
+      onChange("gain", decibelToGain(db - 1));
+    }
+    if (e.key === "o") {
+      e.preventDefault();
+      e.stopPropagation();
+      onChange("gain", decibelToGain(db + 1));
     }
   });
 
   return (
     <>
       {renderField({ name: "bpm", label: "BPM", step: 1 })}
-      {renderField({ name: "gain", label: "Volume", step: 0.01 })}
+      {renderField({
+        name: "gain",
+        label: "Volume (dB)",
+        step: 0.1,
+        toFormat: gainToDecibel,
+        fromFormat: decibelToGain,
+      })}
       {renderField({ name: "frequency", label: "Frequency", step: 1 })}
     </>
   );
@@ -229,10 +248,14 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     name,
     label,
     step,
+    toFormat = identity,
+    fromFormat = identity,
   }: {
     name: string;
     label: string;
     step: number;
+    toFormat?: (value: number) => number;
+    fromFormat?: (value: number) => number;
   }) {
     const param = params[name];
     const value = formValues[name];
@@ -241,28 +264,31 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
         <span className="flex gap-2 items-center">
           <span>{label}</span>
           <span>=</span>
+          {/* TODO: update on press Enter */}
           <input
             className="border text-center mono w-[80px]"
             type="number"
-            min={param.minValue}
-            max={param.maxValue}
+            min={toFormat(param.minValue)}
+            max={toFormat(param.maxValue)}
             step={step}
-            value={value}
-            onChange={(e) => onChange(name, e.target.valueAsNumber)}
+            value={toFormat(value).toFixed(1)}
+            onChange={(e) => onChange(name, fromFormat(e.target.valueAsNumber))}
           />
           <span className="flex-1"></span>
           {name === "bpm" && (
-            <BpmDetectionButton onChange={(value) => onChange(name, value)} />
+            <BpmDetectionButton
+              onChange={(value) => onChange(name, fromFormat(value))}
+            />
           )}
         </span>
         <input
           className="w-full"
           type="range"
-          min={param.minValue}
-          max={param.maxValue}
+          min={toFormat(param.minValue)}
+          max={toFormat(param.maxValue)}
           step={step}
-          value={value}
-          onChange={(e) => onChange(name, e.target.valueAsNumber)}
+          value={toFormat(value)}
+          onChange={(e) => onChange(name, fromFormat(e.target.valueAsNumber))}
         />
       </div>
     );
