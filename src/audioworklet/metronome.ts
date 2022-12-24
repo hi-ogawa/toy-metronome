@@ -1,5 +1,6 @@
 import { range } from "lodash";
 import { z } from "zod";
+import { decibelToGain } from "../utils/conversion";
 
 // https://webaudio.github.io/web-audio-api/#rendering-loop
 const PROCESS_SAMPLE_SIZE = 128;
@@ -32,9 +33,9 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
       },
       {
         name: PARAM_KEYS.gain,
-        defaultValue: 0.1,
-        minValue: 0,
-        maxValue: 2,
+        defaultValue: decibelToGain(-10),
+        minValue: decibelToGain(-40),
+        maxValue: decibelToGain(10),
         automationRate: "k-rate",
       },
       {
