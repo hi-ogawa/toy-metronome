@@ -206,7 +206,7 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
       e.stopPropagation();
       onChange("bpm", bpm - 10);
     }
-    if (e.key === "k") {
+    if (e.key === "l") {
       e.preventDefault();
       e.stopPropagation();
       onChange("bpm", bpm + 10);
