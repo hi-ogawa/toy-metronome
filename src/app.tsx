@@ -7,6 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
+import { tinyassert } from "./utils/tinyassert";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 import { useThemeState } from "./utils/use-theme-state";
@@ -201,6 +202,10 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
   }
 
   useDocumentEvent("keyup", (e) => {
+    if (document.activeElement instanceof HTMLInputElement) {
+      return;
+    }
+
     const bpm = Math.floor(formValues["bpm"] / 10) * 10;
     if (e.key === "j") {
       e.preventDefault();
@@ -259,20 +264,30 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
   }) {
     const param = params[name];
     const value = formValues[name];
+
+    const [temporary, setTemporary] = React.useState(
+      toFormat(value).toFixed(1)
+    );
+    React.useEffect(() => {
+      setTemporary(toFormat(value).toFixed(1));
+    }, [value]);
+
     return (
       <div className="w-full flex flex-col gap-2">
         <span className="flex gap-2 items-center">
           <span>{label}</span>
           <span>=</span>
-          {/* TODO: update on press Enter */}
           <input
             className="border text-center mono w-[80px]"
-            type="number"
-            min={toFormat(param.minValue)}
-            max={toFormat(param.maxValue)}
-            step={step}
-            value={toFormat(value).toFixed(1)}
-            onChange={(e) => onChange(name, fromFormat(e.target.valueAsNumber))}
+            value={temporary}
+            onChange={(e) => setTemporary(e.target.value)}
+            onBlur={() => setTemporary(toFormat(value).toFixed(1))}
+            onKeyUp={(e) => {
+              tinyassert(e.target instanceof HTMLInputElement);
+              if (e.key === "Enter") {
+                onChange(name, fromFormat(Number(temporary)));
+              }
+            }}
           />
           <span className="flex-1"></span>
           {name === "bpm" && (
