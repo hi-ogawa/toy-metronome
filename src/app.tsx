@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
+import type { CustomMessageSchema } from "./audioworklet/common";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { tinyassert } from "./utils/tinyassert";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
@@ -81,10 +82,17 @@ function AppInner() {
   const [isOn, setIsOn] = React.useState(false);
 
   async function toggle() {
-    audio.masterGainNode.gain.linearRampToValueAtTime(
-      isOn ? 0 : 1,
-      audio.audioContext.currentTime + 0.1
-    );
+    if (isOn) {
+      audio.masterGainNode.gain.linearRampToValueAtTime(
+        0,
+        audio.audioContext.currentTime + 0.1
+      );
+    } else {
+      metronomeNode.value?.port.postMessage({
+        type: "reset",
+      } satisfies CustomMessageSchema);
+      audio.masterGainNode.gain.value = 1;
+    }
     setIsOn(!isOn);
   }
 
@@ -219,12 +227,12 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     }
 
     const db = Math.round(gainToDecibel(formValues["gain"]));
-    if (e.key === "u") {
+    if (e.key === "J") {
       e.preventDefault();
       e.stopPropagation();
       onChange("gain", decibelToGain(db - 1));
     }
-    if (e.key === "o") {
+    if (e.key === "L") {
       e.preventDefault();
       e.stopPropagation();
       onChange("gain", decibelToGain(db + 1));

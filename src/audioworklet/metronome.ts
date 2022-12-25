@@ -1,6 +1,7 @@
 import { range } from "lodash";
 import { z } from "zod";
 import { decibelToGain } from "../utils/conversion";
+import { CUSTOM_MESSAGE_SCHEMA } from "./common";
 
 // https://webaudio.github.io/web-audio-api/#rendering-loop
 const PROCESS_SAMPLE_SIZE = 128;
@@ -15,12 +16,21 @@ const PARAM_KEYS_SCHEMA = z.enum([
 const PARAM_KEYS = PARAM_KEYS_SCHEMA.Values;
 
 export class MetronomeProcessor extends AudioWorkletProcessor {
-  private audioBufferOffset: number = 0; // integer
-  private beatFrameOffset: number = 0; // integer
+  private sine = new Sine();
+  private envelope = new Envelope();
 
   constructor() {
     super();
+    this.port.onmessage = this.handleMessage;
   }
+
+  private handleMessage = (e: MessageEvent) => {
+    const message = CUSTOM_MESSAGE_SCHEMA.parse(e.data);
+    if (message.type === "reset") {
+      this.sine.reset();
+      this.envelope.reset();
+    }
+  };
 
   static override get parameterDescriptors(): ParameterDescriptor[] {
     return [
@@ -73,39 +83,56 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
       return true;
     }
 
+    // parameters
     const gain = parameters[PARAM_KEYS.gain][0];
-
     const bpm = parameters[PARAM_KEYS.bpm][0];
-    const numFramesPerBeat = Math.floor((sampleRate * 60) / bpm);
-
     const frequency = parameters[PARAM_KEYS.frequency][0];
-    const audioBufferSize = sampleRate / frequency;
-    this.audioBufferOffset %= audioBufferSize;
-
     const attackDuration = parameters[PARAM_KEYS.attack][0];
     const decayDuration = parameters[PARAM_KEYS.decay][0];
-    const attackOffset = attackDuration * sampleRate;
-    const decayOffset = decayDuration * sampleRate;
 
     for (const i of range(PROCESS_SAMPLE_SIZE)) {
-      this.audioBufferOffset %= audioBufferSize;
-      this.beatFrameOffset %= numFramesPerBeat;
-
-      // compute coefficent based on frame offset and attack/decay
-      let coeff = 0;
-      if (this.beatFrameOffset < attackOffset) {
-        coeff = this.beatFrameOffset / attackOffset;
-      } else if (this.beatFrameOffset < attackOffset + decayOffset) {
-        coeff = 1 - (this.beatFrameOffset - attackOffset) / decayOffset;
-      }
-      const sin = Math.sin(
-        (2 * Math.PI * frequency * this.audioBufferOffset) / sampleRate
+      const sineValue = this.sine.next(frequency / sampleRate);
+      const envelopeValue = this.envelope.next(
+        1 / sampleRate,
+        attackDuration,
+        decayDuration,
+        60 / bpm
       );
-      channel[i] = gain * coeff * sin;
-
-      this.audioBufferOffset++;
-      this.beatFrameOffset++;
+      channel[i] = gain * envelopeValue * sineValue;
     }
     return true;
+  }
+}
+
+class Sine {
+  private phase: number = 0;
+
+  reset() {
+    this.phase = 0;
+  }
+
+  next(delta: number): number {
+    const value = Math.sin(2 * Math.PI * this.phase);
+    this.phase = (this.phase + delta) % 1.0;
+    return value;
+  }
+}
+
+class Envelope {
+  private phase: number = 0;
+
+  reset() {
+    this.phase = 0;
+  }
+
+  next(delta: number, attack: number, release: number, interval: number) {
+    let value = 0.0;
+    if (this.phase < attack) {
+      value = this.phase / attack;
+    } else if (this.phase < attack + release) {
+      value = 1 - (this.phase - attack) / release;
+    }
+    this.phase = (this.phase + delta) % interval;
+    return value;
   }
 }
