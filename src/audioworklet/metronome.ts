@@ -1,6 +1,7 @@
 import { range } from "lodash";
 import { z } from "zod";
 import { decibelToGain } from "../utils/conversion";
+import { CUSTOM_MESSAGE_SCHEMA } from "./common";
 
 // https://webaudio.github.io/web-audio-api/#rendering-loop
 const PROCESS_SAMPLE_SIZE = 128;
@@ -20,6 +21,7 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
 
   constructor() {
     super();
+    this.port.onmessage = this.handleMessage;
   }
 
   static override get parameterDescriptors(): ParameterDescriptor[] {
@@ -61,6 +63,14 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
       },
     ];
   }
+
+  handleMessage = (e: MessageEvent) => {
+    const message = CUSTOM_MESSAGE_SCHEMA.parse(e.data);
+    if (message.type === "reset") {
+      this.audioBufferOffset = 0;
+      this.beatFrameOffset = 0;
+    }
+  };
 
   override process(
     _inputs: Float32Array[][],
