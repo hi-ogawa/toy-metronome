@@ -28,12 +28,13 @@ function setupNavigationCache() {
 function setupAssetsCache() {
   registerRoute(
     ({ request }) => {
-      return request.url.startsWith("/assets");
+      const url = new URL(request.url);
+      return url.pathname.startsWith("/assets");
     },
     new CacheFirst({
       cacheName: "assets",
       plugins: [
-        // @ts-expect-error exactOptionalPropertyTypes fails (https://github.com/GoogleChrome/workbox/issues/3141)
+        // @ts-expect-error
         new CacheableResponsePlugin({
           statuses: [0, 200],
         }),
@@ -48,5 +49,10 @@ function main() {
   setupAssetsCache();
 }
 
-mainNoOp();
-// main();
+declare let self: { SW_NOOP?: boolean };
+
+if (self.SW_NOOP) {
+  mainNoOp();
+} else {
+  main();
+}

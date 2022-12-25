@@ -6,7 +6,9 @@ import { registerServiceWorker } from "./service-worker/window";
 import { tinyassert } from "./utils/tinyassert";
 
 function main() {
-  registerServiceWorker(); // hunging promise
+  if (import.meta.env.PROD) {
+    registerServiceWorker(); // hunging promise
+  }
   const el = document.querySelector("#root");
   tinyassert(el);
   const root = createRoot(el);

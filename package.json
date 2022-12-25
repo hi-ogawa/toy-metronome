@@ -12,6 +12,7 @@
     "build:vite": "vite build",
     "build:service-worker": "esbuild ./src/service-worker/index.ts --bundle --outfile=./public/service-worker.js",
     "build:vercel": "bash misc/vercel/build.sh",
+    "preview": "vite preview",
     "ts": "node -r esbuild-register",
     "tsc": "tsc",
     "lint": "run-s lint:*",
