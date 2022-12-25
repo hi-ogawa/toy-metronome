@@ -6,5 +6,5 @@ module.exports = {
     "import/order": ["error", { alphabetize: { order: "asc" } }],
     "sort-imports": ["error", { ignoreDeclarationSort: true }],
   },
-  ignorePatterns: ["build", "dist", ".vercel", "third_party", "subprojects"],
+  ignorePatterns: ["build", "dist", ".vercel", "public"],
 };
