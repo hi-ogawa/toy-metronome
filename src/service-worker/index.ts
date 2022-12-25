@@ -1,20 +1,34 @@
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
 import { registerRoute } from "workbox-routing";
-import { CacheFirst } from "workbox-strategies";
+import { CacheFirst, NetworkFirst } from "workbox-strategies";
+import { mainNoOp } from "./no-op";
 
 // https://developer.chrome.com/docs/workbox/modules/workbox-recipes/
 
-// network first for nagivation "/index.html"
-function pageCache() {
-  // TODO
-}
-
-// cache first for hashed assets under "/assets"
-function assetsCache() {
+// "network first" for nagivation "/index.html"
+function setupNavigationCache() {
   registerRoute(
     ({ request }) => {
-      request.url.startsWith("/assets");
-      return true;
+      return request.mode === "navigate";
+    },
+    new NetworkFirst({
+      cacheName: "navigation",
+      networkTimeoutSeconds: 3,
+      plugins: [
+        // @ts-expect-error exactOptionalPropertyTypes fails (https://github.com/GoogleChrome/workbox/issues/3141)
+        new CacheableResponsePlugin({
+          statuses: [0, 200],
+        }),
+      ],
+    })
+  );
+}
+
+// "cache first" for hashed assets under "/assets"
+function setupAssetsCache() {
+  registerRoute(
+    ({ request }) => {
+      return request.url.startsWith("/assets");
     },
     new CacheFirst({
       cacheName: "assets",
@@ -28,10 +42,11 @@ function assetsCache() {
   );
 }
 
-// @ts-expect-error
+// @ts-ignore
 function main() {
-  pageCache();
-  assetsCache();
+  setupNavigationCache();
+  setupAssetsCache();
 }
 
+mainNoOp();
 // main();
