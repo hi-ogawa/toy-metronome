@@ -13,6 +13,8 @@ const { defaultAlgorithm, defaultSeed, darkAlgorithm } = theme;
 const LIGHT = alias({ ...defaultAlgorithm(defaultSeed), override: {} });
 const DARK = alias({ ...darkAlgorithm(defaultSeed), override: {} });
 
+// dump css to review variables easily
+//   pnpm -s ts -e 'console.log(require("./src/styles/antd-preset.ts").CSS)' > ./src/styles/antd-preset-dump.css
 export const CSS = `
 :root {
 ${Object.entries(LIGHT)
