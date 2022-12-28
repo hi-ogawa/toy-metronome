@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 import react from "@vitejs/plugin-react";
 import unocss from "unocss/vite";
 import { Plugin, defineConfig } from "vite";
@@ -22,6 +23,7 @@ function serviceWorkerPrecachePlugin(): Plugin {
       const manifest = Object.keys(bundle).map((url) => baseUrl + url);
       let sw = await fs.promises.readFile(swSrc, "utf-8");
       sw = sw.replace(injectionPoint, JSON.stringify(manifest));
+      await fs.promises.mkdir(path.dirname(swDst), { recursive: true });
       await fs.promises.writeFile(swDst, sw);
     },
   };
