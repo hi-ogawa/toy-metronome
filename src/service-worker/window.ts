@@ -1,6 +1,5 @@
 import { Workbox } from "workbox-window";
 
-// emitted vai `pnpm build:service-worker`
 const SERVICE_WORKER_URL = "/service-worker.js";
 
 export async function registerServiceWorker() {
