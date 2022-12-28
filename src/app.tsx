@@ -70,8 +70,19 @@ function AppInner() {
   React.useEffect(() => {
     if (audio.audioContext.state !== "running") {
       toast(
-        "Web Audio is disabled before user interaction.\nPlease start it either by hitting a space key or toggling a top-right icon.",
-        { icon: "⚠️", duration: Infinity, id: WEB_AUDIO_WARNING }
+        "Web Audio is disabled before user interaction.\nPlease start it either by pressing a left icon or hitting a space key.",
+        {
+          icon: (
+            <button
+              className="btn btn-ghost flex items-center"
+              onClick={() => audio.audioContext.resume()}
+            >
+              <span className="i-ri-volume-up-line w-6 h-6"></span>
+            </button>
+          ),
+          duration: Infinity,
+          id: WEB_AUDIO_WARNING,
+        }
       );
     }
   }, []);
