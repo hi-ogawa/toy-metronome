@@ -3,4 +3,3 @@ pnpm-lock.yaml
 build
 dist
 .vercel
-public
