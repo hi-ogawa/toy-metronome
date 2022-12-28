@@ -3,6 +3,7 @@ import path from "node:path";
 import react from "@vitejs/plugin-react";
 import unocss from "unocss/vite";
 import { Plugin, defineConfig } from "vite";
+import type { PrecacheEntry } from "workbox-precaching";
 
 export default defineConfig({
   build: {
@@ -20,7 +21,10 @@ function serviceWorkerPrecachePlugin(): Plugin {
   return {
     name: serviceWorkerPrecachePlugin.name,
     generateBundle: async (_options, bundle) => {
-      const manifest = Object.keys(bundle).map((url) => baseUrl + url);
+      const manifest: PrecacheEntry[] = Object.keys(bundle).map((url) => ({
+        url: baseUrl + url,
+        revision: null,
+      }));
       let sw = await fs.promises.readFile(swSrc, "utf-8");
       sw = sw.replace(injectionPoint, JSON.stringify(manifest));
       await fs.promises.mkdir(path.dirname(swDst), { recursive: true });
