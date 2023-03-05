@@ -1,3 +1,3 @@
 import "virtual:uno.css";
-import "@unocss/reset/tailwind.css";
+import "@hiogawa/unocss-preset-antd/dist/reset";
 import "./index.css";

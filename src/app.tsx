@@ -1,4 +1,5 @@
 import { Transition } from "@headlessui/react";
+import { tinyassert } from "@hiogawa/utils";
 import { useLocalStorage } from "@rehooks/local-storage";
 import { identity, mapValues, range, sum } from "lodash";
 import React from "react";
@@ -7,8 +8,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
 import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import type { CustomMessageSchema } from "./audioworklet/common";
+import { tw } from "./styles/tw";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { tinyassert } from "./utils/tinyassert";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 import { useThemeState } from "./utils/use-theme-state";
@@ -18,7 +19,7 @@ export function App() {
     <>
       <Toaster
         toastOptions={{
-          className: "!bg-[var(--colorBgElevated)] !text-[var(--colorText)]",
+          className: tw.important(tw.bg_colorBgElevated.text_colorText).$,
         }}
       />
       <AppInner />
@@ -74,7 +75,7 @@ function AppInner() {
         {
           icon: (
             <button
-              className="btn btn-ghost flex items-center"
+              className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
               onClick={() => audio.audioContext.resume()}
             >
               <span className="i-ri-volume-up-line w-6 h-6"></span>
@@ -125,7 +126,7 @@ function AppInner() {
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-3 top-3 flex gap-3">
         <button
-          className="btn btn-ghost flex items-center"
+          className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
           onClick={() => {
             if (audioState === "suspended") {
               audio.audioContext.resume();
@@ -143,7 +144,7 @@ function AppInner() {
         </button>
         <ThemeButton />
         <a
-          className="flex items-center btn btn-ghost"
+          className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
           href="https://github.com/hi-ogawa/toy-metronome"
           target="_blank"
         >
@@ -154,7 +155,11 @@ function AppInner() {
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
           <MetronomdeNodeComponent node={metronomeNode.value} />
           <button
-            className="btn btn-primary w-full flex justify-center items-center py-0.5"
+            className={
+              tw.antd_btn.antd_btn_primary._(
+                "w-full flex justify-center items-center py-0.5"
+              ).$
+            }
             disabled={audioState !== "running"}
             onClick={(e) => {
               e.stopPropagation();
@@ -171,14 +176,18 @@ function AppInner() {
         </div>
       )}
       <Transition
-        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-[var(--colorBgElevated)]"
+        className={
+          tw._(
+            "absolute inset-0 flex justify-center items-center transition duration-1000"
+          ).bg_colorBgElevated.$
+        }
         show={metronomeNode.loading}
         enterFrom="opacity-0"
         enterTo="opacity-100"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <span className="spinner w-10 h-10 !border-4" />
+        <span className={tw.antd_spin._("w-10 h-10 !border-4").$} />
       </Transition>
     </div>
   );
@@ -297,7 +306,7 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
           <span>{label}</span>
           <span>=</span>
           <input
-            className="border text-center mono w-[80px]"
+            className={tw.antd_input.text_center._("w-[80px]").$}
             value={temporary}
             onChange={(e) => setTemporary(e.target.value)}
             onBlur={() => setTemporary(toFormat(value).toFixed(1))}
@@ -349,7 +358,7 @@ function BpmDetectionButton({
   return (
     <button
       title="Tap it to derive BPM"
-      className="btn btn-ghost flex items-center"
+      className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
       onClick={() => onClick()}
     >
       <span className="i-ri-fingerprint-line w-4 h-4"></span>
@@ -370,7 +379,7 @@ function ThemeButton() {
   const [theme, setTheme] = useThemeState();
   return (
     <button
-      className="flex items-center btn btn-ghost"
+      className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
       disabled={!theme}
       onClick={() => {
         setTheme(theme === "dark" ? "light" : "dark");
