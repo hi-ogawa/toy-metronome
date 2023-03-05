@@ -3,6 +3,9 @@ lockfileVersion: 5.4
 specifiers:
   '@headlessui/react': ^1.7.4
   '@hiogawa/isort-ts': 1.0.0-pre.12
+  '@hiogawa/unocss-preset-antd': ^2.0.0
+  '@hiogawa/unocss-typescript-dsl': 2.0.0-pre.4
+  '@hiogawa/utils': ^1.2.0
   '@iconify-json/ri': ^1.1.4
   '@rehooks/local-storage': ^2.4.4
   '@tsconfig/strictest': ^1.0.2
@@ -37,6 +40,7 @@ specifiers:
 
 dependencies:
   '@headlessui/react': 1.7.4_biqbaboplfbrettd7655fr4n2y
+  '@hiogawa/utils': 1.2.0
   '@rehooks/local-storage': 2.4.4_react@18.2.0
   '@types/lodash': 4.14.191
   lodash: 4.17.21
@@ -54,6 +58,8 @@ dependencies:
 
 devDependencies:
   '@hiogawa/isort-ts': 1.0.0-pre.12_brpckf4sz23pco3jyty2eys3iq
+  '@hiogawa/unocss-preset-antd': 2.0.0_unocss@0.47.5
+  '@hiogawa/unocss-typescript-dsl': 2.0.0-pre.4
   '@iconify-json/ri': 1.1.4
   '@tsconfig/strictest': 1.0.2
   '@types/react': 18.0.26
@@ -1492,6 +1498,36 @@ packages:
       typescript: 4.9.3
     dev: true
 
+  /@hiogawa/unocss-preset-antd/2.0.0_unocss@0.47.5:
+    resolution: {integrity: sha512-be0GVmr5BztF2SGJ1vrTOrgpE1UAbOI2qQG4SRo2pmzj/kEhO3ZMvbwvNOSqGwj1jq6WK2FkXoW244FTg/ra8A==}
+    peerDependencies:
+      '@unocss/preset-uno': '*'
+      unocss: '*'
+    dependencies:
+      '@unocss/reset': 0.48.5
+      local-pkg: 0.4.3
+      unocss: 0.47.5_vite@3.2.4
+    dev: true
+
+  /@hiogawa/unocss-typescript-dsl/2.0.0-pre.4:
+    resolution: {integrity: sha512-jechxsSyO3BTHjGGxP8/ieCrb2OghsSY/y44mj2E1kpQiTjK3EY0y/6Bq9t3zPGHyS9WCthtE6T1XC5HCPWFeg==}
+    hasBin: true
+    peerDependencies:
+      '@iconify/utils': '*'
+      '@unocss/config': '*'
+      '@unocss/core': '*'
+      local-pkg: '*'
+      magic-string: '*'
+    dependencies:
+      cac: 6.7.14
+      consola: 2.15.3
+      zod: 3.21.0
+    dev: true
+
+  /@hiogawa/utils/1.2.0:
+    resolution: {integrity: sha512-6ejQ1tDLPj3ybOOvPW+MD3uQmjYGTtWGXcP+zQjygTAXCPrKqA93k7VjP2wziZO4mayzLO1YJS9xcVm/yavqOA==}
+    dev: false
+
   /@iconify-json/ri/1.1.4:
     resolution: {integrity: sha512-gAk2gQBVghgbMLOmbUCc3l4COMMH5sR3HhBqpjaPUFBbC4WsNNRyOD4RZgjlanU7DTgFrj4NarY5K2EkXaVxuw==}
     dependencies:
@@ -1914,6 +1950,10 @@ packages:
 
   /@unocss/reset/0.47.5:
     resolution: {integrity: sha512-UmAeVMlcGPyrZJdQMGDX7EMVA4UieUyR9f3l6a3B/AcUNPQtcISLIlzzRqcUg2c/SkkA5sHZdXDa+l48b5+rGA==}
+    dev: true
+
+  /@unocss/reset/0.48.5:
+    resolution: {integrity: sha512-+JJT3Btj1oNX4XwKBDPRUYre3NYBNmi0PsC3tqkHN2VphJG0iZl91XNfsveLz8pVpDJPUDdLH4xsqh52WmxU1g==}
     dev: true
 
   /@unocss/scope/0.47.5:
@@ -3665,6 +3705,11 @@ packages:
 
   /local-pkg/0.4.2:
     resolution: {integrity: sha512-mlERgSPrbxU3BP4qBqAvvwlgW4MTg78iwJdGGnv7kibKjWcJksrG3t6LB5lXI93wXRDvG4NpUgJFmTG4T6rdrg==}
+    engines: {node: '>=14'}
+    dev: true
+
+  /local-pkg/0.4.3:
+    resolution: {integrity: sha512-SFppqq5p42fe2qcZQqqEOiVRXl+WCP1MdT6k7BDEW1j++sp5fIY+/fdRQitvKgB5BrBcmrs5m/L0v2FrU5MY1g==}
     engines: {node: '>=14'}
     dev: true
 
@@ -6008,3 +6053,7 @@ packages:
   /zod/3.19.1:
     resolution: {integrity: sha512-LYjZsEDhCdYET9ikFu6dVPGp2YH9DegXjdJToSzD9rO6fy4qiRYFoyEYwps88OseJlPyl2NOe2iJuhEhL7IpEA==}
     dev: false
+
+  /zod/3.21.0:
+    resolution: {integrity: sha512-UYdykTcVxB6lfdyLzAqLyyYAlOcpoluECvjsdoaqfQmz9p+3LRaIqYcNiL/J2kFYp66fBM8wwBvIGVEjq7KtZw==}
+    dev: true
