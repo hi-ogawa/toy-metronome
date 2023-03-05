@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@hiogawa/isort-ts": "1.0.0-pre.12",
-    "@hiogawa/unocss-preset-antd": "^2.0.0",
+    "@hiogawa/unocss-preset-antd": "^2.0.1",
     "@hiogawa/unocss-typescript-dsl": "2.0.0-pre.4",
     "@iconify-json/ri": "^1.1.4",
     "@tsconfig/strictest": "^1.0.2",
