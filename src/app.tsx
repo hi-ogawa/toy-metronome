@@ -34,17 +34,15 @@ function AppInner() {
   // initialize AudioContext and AudioNode
   //
   const [audio] = React.useState(() => {
+    // TODO: move to react context?
     const audioContext = new AudioContext();
-    // since AudioContext.resume/suspend is clicky, we control master gain for on/off
-    const masterGainNode = new GainNode(audioContext, { gain: 0 });
-    masterGainNode.connect(audioContext.destination);
-    return { audioContext, masterGainNode };
+    return { audioContext };
   });
 
   const metronomeNode = useMetronomeNode({
     audioContext: audio.audioContext,
     onSuccess: (metronomeNode) => {
-      metronomeNode.connect(audio.masterGainNode);
+      metronomeNode.connect(audio.audioContext.destination);
     },
     onError: () => {
       toast.error("failed to load metronome");
@@ -91,21 +89,16 @@ function AppInner() {
   //
   // metronome state
   //
-  const [isOn, setIsOn] = React.useState(false);
+  const [playing, setPlaying] = React.useState(false);
 
   async function toggle() {
-    if (isOn) {
-      audio.masterGainNode.gain.linearRampToValueAtTime(
-        0,
-        audio.audioContext.currentTime + 0.1
-      );
-    } else {
-      metronomeNode.value?.port.postMessage({
-        type: "reset",
-      } satisfies CustomMessageSchema);
-      audio.masterGainNode.gain.value = 1;
-    }
-    setIsOn(!isOn);
+    metronomeNode.value?.port.postMessage({
+      type: "setState",
+      data: {
+        playing: !playing,
+      },
+    } satisfies CustomMessageSchema);
+    setPlaying(!playing);
   }
 
   // keyboard shortcut
@@ -167,7 +160,7 @@ function AppInner() {
               toggle();
             }}
           >
-            {isOn ? (
+            {playing ? (
               <span className="i-ri-pause-line w-6 h-6"></span>
             ) : (
               <span className="i-ri-play-line w-6 h-6"></span>
