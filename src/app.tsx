@@ -34,17 +34,15 @@ function AppInner() {
   // initialize AudioContext and AudioNode
   //
   const [audio] = React.useState(() => {
+    // TODO: move to react context?
     const audioContext = new AudioContext();
-    // since AudioContext.resume/suspend is clicky, we control master gain for on/off
-    const masterGainNode = new GainNode(audioContext, { gain: 1 });
-    masterGainNode.connect(audioContext.destination);
-    return { audioContext, masterGainNode };
+    return { audioContext };
   });
 
   const metronomeNode = useMetronomeNode({
     audioContext: audio.audioContext,
     onSuccess: (metronomeNode) => {
-      metronomeNode.connect(audio.masterGainNode);
+      metronomeNode.connect(audio.audioContext.destination);
     },
     onError: () => {
       toast.error("failed to load metronome");
