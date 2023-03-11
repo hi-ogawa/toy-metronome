@@ -7,6 +7,7 @@ export const CUSTOM_MESSAGE_SCHEMA = z.discriminatedUnion("type", [
     type: z.literal("setState"),
     data: z.object({ playing: z.boolean() }),
   }),
+  // unused
   z.object({ type: z.literal("reset") }),
 ]);
 
