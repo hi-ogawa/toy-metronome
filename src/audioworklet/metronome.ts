@@ -26,9 +26,11 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
 
   private handleMessage = (e: MessageEvent) => {
     const message = CUSTOM_MESSAGE_SCHEMA.parse(e.data);
-    if (message.type === "reset") {
-      this.sine.reset();
-      this.envelope.reset();
+    switch (message.type) {
+      case "setState": {
+        this.envelope.playing = message.data.playing;
+        return;
+      }
     }
   };
 
@@ -107,10 +109,6 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
 class Sine {
   private phase: number = 0;
 
-  reset() {
-    this.phase = 0;
-  }
-
   next(delta: number): number {
     const value = Math.sin(2 * Math.PI * this.phase);
     this.phase = (this.phase + delta) % 1.0;
@@ -119,14 +117,14 @@ class Sine {
 }
 
 class Envelope {
+  playing = false;
   private phase: number = 0;
-
-  reset() {
-    this.phase = 0;
-  }
 
   next(delta: number, attack: number, release: number, interval: number) {
     let value = 0.0;
+    if (!this.playing && this.phase <= delta) {
+      return value;
+    }
     if (this.phase < attack) {
       value = this.phase / attack;
     } else if (this.phase < attack + release) {
