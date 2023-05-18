@@ -1,5 +1,6 @@
 import { Transition } from "@headlessui/react";
 import { tinyassert } from "@hiogawa/utils";
+import { useRafLoop, useStableCallback } from "@hiogawa/utils-react";
 import { useLocalStorage } from "@rehooks/local-storage";
 import { identity, mapValues, range, sum } from "lodash";
 import React from "react";
@@ -10,8 +11,6 @@ import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import type { CustomMessageSchema } from "./audioworklet/common";
 import { tw } from "./styles/tw";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
-import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
   return (
@@ -55,7 +54,7 @@ function AppInner() {
     () => audio.audioContext.state
   );
 
-  useAnimationFrameLoop(() => {
+  useRafLoop(() => {
     if (audioState !== audio.audioContext.state) {
       setAudioState(audio.audioContext.state);
     }
@@ -395,17 +394,17 @@ function useMetronomeNode({
   onSuccess: (node: AudioWorkletNode) => void;
   onError: (e: unknown) => void;
 }) {
-  const onSuccessRef = useStableRef(onSuccess);
-  const onErrorRef = useStableRef(onError);
+  onSuccess = useStableCallback(onSuccess);
+  onError = useStableCallback(onError);
 
   return useAsync(async () => {
     try {
       await audioContext.audioWorklet.addModule(AUDIOWORKLET_URL);
       const node = new AudioWorkletNode(audioContext, "metronome");
-      onSuccessRef.current(node);
+      onSuccess(node);
       return node;
     } catch (e) {
-      onErrorRef.current(e);
+      onError(e);
       throw e;
     }
   });
@@ -426,12 +425,9 @@ function useDocumentEvent<K extends keyof DocumentEventMap>(
   type: K,
   handler: (e: DocumentEventMap[K]) => void
 ) {
-  const handlerRef = useStableRef(handler);
+  handler = useStableCallback(handler);
 
   React.useEffect(() => {
-    const handler = (e: DocumentEventMap[K]) => {
-      handlerRef.current(e);
-    };
     document.addEventListener(type, handler);
     return () => {
       document.removeEventListener(type, handler);
