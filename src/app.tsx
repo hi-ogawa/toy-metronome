@@ -1,8 +1,7 @@
 import { Transition } from "@headlessui/react";
-import { tinyassert } from "@hiogawa/utils";
+import { range, tinyassert } from "@hiogawa/utils";
 import { useRafLoop, useStableCallback } from "@hiogawa/utils-react";
 import { useLocalStorage } from "@rehooks/local-storage";
-import { identity, mapValues, range, sum } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
@@ -11,6 +10,7 @@ import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import type { CustomMessageSchema } from "./audioworklet/common";
 import { tw } from "./styles/tw";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
+import { identity, mapValues, sum } from "./utils/misc";
 
 export function App() {
   return (

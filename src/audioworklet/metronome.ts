@@ -1,4 +1,4 @@
-import { range } from "lodash";
+import { range } from "@hiogawa/utils";
 import { z } from "zod";
 import { decibelToGain } from "../utils/conversion";
 import { CUSTOM_MESSAGE_SCHEMA } from "./common";
