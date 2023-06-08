@@ -16,50 +16,7 @@
     <script>
       window.global = window;
     </script>
-    <!-- initialize light/dark theme as early as possible (cf. src/utils/use-theme-state.ts) -->
-    <script>
-      function __getTheme() {
-        return window.localStorage.getItem("theme") || "light";
-      }
-
-      function __setTheme(theme) {
-        window.localStorage.setItem("theme", theme);
-        __applyTheme(theme);
-      }
-
-      function __applyTheme(theme) {
-        const classList = document.documentElement.classList;
-        __disableTransitions(() => {
-          classList.remove("dark", "light");
-          classList.add(theme === "dark" ? "dark" : "light");
-        });
-      }
-
-      function __disableTransitions(f) {
-        // https://paco.me/writing/disable-theme-transitions
-        const el = document.createElement("style");
-        el.type = "text/css";
-        el.appendChild(
-          document.createTextNode(`
-            * {
-              -webkit-transition: none !important;
-              -moz-transition: none !important;
-              -o-transition: none !important;
-              -ms-transition: none !important;
-              transition: none !important;
-            }
-          `)
-        );
-        document.head.appendChild(el);
-        f();
-        if (!window.getComputedStyle(document.firstElementChild).transition) {
-          console.debug("__disableTransitions:unreachable");
-        }
-        document.head.removeChild(el);
-      }
-
-      __applyTheme(__getTheme());
-    </script>
+    <!--@@INJECT_THEME_SCRIPT@@-->
   </head>
   <body>
     <div id="root"></div>
