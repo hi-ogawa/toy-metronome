@@ -3,10 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <title>Metronome</title>
-    <!-- https://remixicon.com/ ri-time-line -->
+    <!-- based on https://remixicon.com/icon/time-line -->
+    <!--
+      "data:image/svg+xml;base64," + btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <style>
+          :root { color: black }
+          @media (prefers-color-scheme: dark) {
+            :root { color: white }
+          }
+        </style>
+        <path fill="currentColor" d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path>
+      </svg>
+      `)
+     -->
     <link
       rel="icon"
-      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAGASURBVEhLvZWBUcMwDEXbDWACygTABIQNYAKyATABMAEwATABdAKyAe0GYQLYAP7ryTk3tZW6d8F3/9qLJX3py5ank5HXdOT4k20IaiVxKhwbyGlheNfv3EvSIziX44MwG6iy1f6NANnGyhE8yvLKrJfm3FjWfKaaSiCJI7PDB6K1lSKIgz/J+tqpYE97d1EyG/Z9AjJ6s4AXubIThFm/PkEr5wMhl/mvBfcqJ8ZhSCI2rPXxWUBzNE4tjwC5GoGedNXHBC/auBTuTddSAuzpx63wKpDw2j3gbMN+ZpnsQlDJ6UMg1kmfIJS/r42fHSTCBZm+zXelTixRCUGfP8RxCUokyhEEibqDUtrkjHLdZ7fJdJ1jSiU0OteHHAnyfAozIXlMcWwF76J5FYQR82UkK9t/HxWQxsOO/1y8nFzIwsUKA3Fw2AUJYhJ6wqxvBE4HiwtZCXUkR3J+DT04ENETb6E5FRQ9OHFARjFgAIbHhUpCZcnAIcA2b/JAAf726AR/q3hZGUXI79kAAAAASUVORK5CYII="
+      type="image/svg+xml"
+      href="data:image/svg+xml;base64,CiAgICAgIDxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMjQgMjQiPgogICAgICAgIDxzdHlsZT4KICAgICAgICAgIDpyb290IHsgY29sb3I6IGJsYWNrIH0KICAgICAgICAgIEBtZWRpYSAocHJlZmVycy1jb2xvci1zY2hlbWU6IGRhcmspIHsKICAgICAgICAgICAgOnJvb3QgeyBjb2xvcjogd2hpdGUgfQogICAgICAgICAgfQogICAgICAgIDwvc3R5bGU+CiAgICAgICAgPHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNMTIgMjJDNi40NzcxNSAyMiAyIDE3LjUyMjggMiAxMkMyIDYuNDc3MTUgNi40NzcxNSAyIDEyIDJDMTcuNTIyOCAyIDIyIDYuNDc3MTUgMjIgMTJDMjIgMTcuNTIyOCAxNy41MjI4IDIyIDEyIDIyWk0xMiAyMEMxNi40MTgzIDIwIDIwIDE2LjQxODMgMjAgMTJDMjAgNy41ODE3MiAxNi40MTgzIDQgMTIgNEM3LjU4MTcyIDQgNCA3LjU4MTcyIDQgMTJDNCAxNi40MTgzIDcuNTgxNzIgMjAgMTIgMjBaTTEzIDEySDE3VjE0SDExVjdIMTNWMTJaIj48L3BhdGg+CiAgICAgIDwvc3ZnPgogICAgICA"
     />
     <meta
       name="viewport"
@@ -16,50 +30,7 @@
     <script>
       window.global = window;
     </script>
-    <!-- initialize light/dark theme as early as possible (cf. src/utils/use-theme-state.ts) -->
-    <script>
-      function __getTheme() {
-        return window.localStorage.getItem("theme") || "light";
-      }
-
-      function __setTheme(theme) {
-        window.localStorage.setItem("theme", theme);
-        __applyTheme(theme);
-      }
-
-      function __applyTheme(theme) {
-        const classList = document.documentElement.classList;
-        __disableTransitions(() => {
-          classList.remove("dark", "light");
-          classList.add(theme === "dark" ? "dark" : "light");
-        });
-      }
-
-      function __disableTransitions(f) {
-        // https://paco.me/writing/disable-theme-transitions
-        const el = document.createElement("style");
-        el.type = "text/css";
-        el.appendChild(
-          document.createTextNode(`
-            * {
-              -webkit-transition: none !important;
-              -moz-transition: none !important;
-              -o-transition: none !important;
-              -ms-transition: none !important;
-              transition: none !important;
-            }
-          `)
-        );
-        document.head.appendChild(el);
-        f();
-        if (!window.getComputedStyle(document.firstElementChild).transition) {
-          console.debug("__disableTransitions:unreachable");
-        }
-        document.head.removeChild(el);
-      }
-
-      __applyTheme(__getTheme());
-    </script>
+    <!--@@INJECT_THEME_SCRIPT@@-->
   </head>
   <body>
     <div id="root"></div>
