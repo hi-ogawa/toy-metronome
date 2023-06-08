@@ -65,5 +65,8 @@
     "vitest": "^0.25.3",
     "workbox-build": "^6.5.4",
     "workbox-cli": "^6.5.4"
+  },
+  "volta": {
+    "node": "18.16.0"
   }
 }
