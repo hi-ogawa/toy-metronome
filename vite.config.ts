@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { THEME_SCRIPT } from "@hiogawa/theme-script";
 import react from "@vitejs/plugin-react";
 import unocss from "unocss/vite";
 import { Plugin, defineConfig } from "vite";
@@ -39,23 +40,18 @@ function serviceWorkerPrecachePlugin(): Plugin {
 }
 
 // inject theme initialization script
-function injectThemeScriptPlugin() {
-  const script = fs.readFileSync(
-    require.resolve("@hiogawa/utils-experimental/dist/theme-script.global.js"),
-    "utf-8"
-  );
+function injectThemeScriptPlugin(): Plugin {
   return {
     name: "local:" + injectThemeScriptPlugin.name,
-    transformIndexHtml(html: string) {
-      return html.replace(
-        /<!--@@INJECT_THEME_SCRIPT@@-->/,
-        `\
-<script>
-  globalThis.__themeStorageKey = "toy-metronome:theme";
-  globalThis.__themeDefault = "dark";
-  ${script}
-</script>`
-      );
-    },
+    transformIndexHtml: () => [
+      {
+        tag: "script",
+        children: `
+          window.THEME_SCRIPT_STORAGE_KEY = "toy-metronome:theme";
+          window.THEME_SCRIPT_DEFAULT = "dark";
+          ${THEME_SCRIPT}
+        `,
+      },
+    ],
   };
 }
