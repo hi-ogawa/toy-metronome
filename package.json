@@ -23,7 +23,7 @@
     "lint:prettier": "prettier --write --cache .",
     "lint-check:prettier": "prettier --check --cache .",
     "release": "vercel deploy --prebuilt .",
-    "release:production": "vercel deploy --prebuilt . --prod"
+    "release-production": "vercel deploy --prebuilt . --prod"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.4",

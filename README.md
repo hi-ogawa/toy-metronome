@@ -8,10 +8,8 @@ pnpm i
 pnpm dev
 
 # release
-vercel projects add metronome-hiro18181
-vercel link -p metronome-hiro18181
 pnpm build
-pnpm release:production
+pnpm release-production
 ```
 
 ![image](https://user-images.githubusercontent.com/4232207/222953864-2dee3cff-72ac-4e18-ba94-d0a0146d92e8.png)
