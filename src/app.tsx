@@ -1,8 +1,8 @@
 import { Transition } from "@headlessui/react";
 import { getTheme, setTheme } from "@hiogawa/theme-script";
-import { tinyassert } from "@hiogawa/utils";
+import { range, tinyassert } from "@hiogawa/utils";
 import { useLocalStorage } from "@rehooks/local-storage";
-import { identity, mapValues, range, sum } from "lodash";
+import { identity, mapValues, sum } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
