@@ -1,7 +1,8 @@
 import { Transition } from "@headlessui/react";
-import { tinyassert } from "@hiogawa/utils";
+import { getTheme, setTheme } from "@hiogawa/theme-script";
+import { range, tinyassert } from "@hiogawa/utils";
 import { useLocalStorage } from "@rehooks/local-storage";
-import { identity, mapValues, range, sum } from "lodash";
+import { identity, mapValues, sum } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
@@ -367,14 +368,11 @@ function deriveBpm(times: number[]): number | undefined {
   return Math.floor(1 / inv_hz);
 }
 
-declare let __themeGet: () => string;
-declare let __themeSet: (v: string) => void;
-
 function ThemeButton() {
   return (
     <button
       className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
-      onClick={() => __themeSet(__themeGet() === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(getTheme() === "dark" ? "light" : "dark")}
     >
       <span className="dark:i-ri-sun-line light:i-ri-moon-line !w-6 !h-6" />
     </button>
