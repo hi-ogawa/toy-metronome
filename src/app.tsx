@@ -12,6 +12,7 @@ import { tw } from "./styles/tw";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
+import { getTheme, setTheme } from "@hiogawa/theme-script";
 
 export function App() {
   return (
@@ -367,14 +368,11 @@ function deriveBpm(times: number[]): number | undefined {
   return Math.floor(1 / inv_hz);
 }
 
-declare let __themeGet: () => string;
-declare let __themeSet: (v: string) => void;
-
 function ThemeButton() {
   return (
     <button
       className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
-      onClick={() => __themeSet(__themeGet() === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(getTheme() === "dark" ? "light" : "dark")}
     >
       <span className="dark:i-ri-sun-line light:i-ri-moon-line !w-6 !h-6" />
     </button>

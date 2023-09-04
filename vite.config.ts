@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { themeScriptPlugin } from "@hiogawa/theme-script/dist/vite";
 import react from "@vitejs/plugin-react";
 import unocss from "unocss/vite";
 import { Plugin, defineConfig } from "vite";
@@ -12,8 +13,11 @@ export default defineConfig({
   plugins: [
     unocss(),
     react(),
+    themeScriptPlugin({
+      storageKey: "toy-metronome:theme",
+      defaultTheme: "dark",
+    }),
     serviceWorkerPrecachePlugin(),
-    injectThemeScriptPlugin(),
   ],
 });
 
@@ -34,28 +38,6 @@ function serviceWorkerPrecachePlugin(): Plugin {
       sw = sw.replace(injectionPoint, JSON.stringify(manifest));
       await fs.promises.mkdir(path.dirname(swDst), { recursive: true });
       await fs.promises.writeFile(swDst, sw);
-    },
-  };
-}
-
-// inject theme initialization script
-function injectThemeScriptPlugin() {
-  const script = fs.readFileSync(
-    require.resolve("@hiogawa/utils-experimental/dist/theme-script.global.js"),
-    "utf-8"
-  );
-  return {
-    name: "local:" + injectThemeScriptPlugin.name,
-    transformIndexHtml(html: string) {
-      return html.replace(
-        /<!--@@INJECT_THEME_SCRIPT@@-->/,
-        `\
-<script>
-  globalThis.__themeStorageKey = "toy-metronome:theme";
-  globalThis.__themeDefault = "dark";
-  ${script}
-</script>`
-      );
     },
   };
 }

@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.4",
+    "@hiogawa/theme-script": "0.0.4-pre.3",
     "@hiogawa/utils": "^1.2.0",
     "@hiogawa/utils-experimental": "^0.0.1",
     "@rehooks/local-storage": "^2.4.4",
