@@ -1,4 +1,5 @@
 import { Transition } from "@headlessui/react";
+import { getTheme, setTheme } from "@hiogawa/theme-script";
 import { tinyassert } from "@hiogawa/utils";
 import { useLocalStorage } from "@rehooks/local-storage";
 import { identity, mapValues, range, sum } from "lodash";
@@ -12,7 +13,6 @@ import { tw } from "./styles/tw";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
-import { getTheme, setTheme } from "@hiogawa/theme-script";
 
 export function App() {
   return (
