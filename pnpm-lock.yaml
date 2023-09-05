@@ -12,8 +12,8 @@ dependencies:
     specifier: 0.0.4-pre.3
     version: 0.0.4-pre.3(vite@3.2.4)
   '@hiogawa/utils':
-    specifier: 1.6.1-pre.5
-    version: 1.6.1-pre.5
+    specifier: 1.6.1-pre.6
+    version: 1.6.1-pre.6
   '@rehooks/local-storage':
     specifier: ^2.4.4
     version: 2.4.4(react@18.2.0)
@@ -1501,8 +1501,8 @@ packages:
       zod: 3.21.0
     dev: true
 
-  /@hiogawa/utils@1.6.1-pre.5:
-    resolution: {integrity: sha512-EtU3+qrkf/QXNmiDJJkKWBfGv71X6OgCt/zjOghqiwzkUY1485I66IuW7a0WXmTsYgpAscahk0zf+az3xLKfJA==}
+  /@hiogawa/utils@1.6.1-pre.6:
+    resolution: {integrity: sha512-NdhmOB0B+oKXaN8eX6roT8Be8peM/YwKzPXOM9UG5cYeW/HW07XH7yH+Tq5YWMDbVLkPCeeCzKVhMVvzlOjnsw==}
     dev: false
 
   /@iconify-json/ri@1.1.4:
@@ -3728,8 +3728,8 @@ packages:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
     dev: true
 
-  /mlly@1.4.1:
-    resolution: {integrity: sha512-SCDs78Q2o09jiZiE2WziwVBEqXQ02XkGdUy45cbJf+BpYRIjArXRJ1Wbowxkb+NaM9DWvS3UC9GiO/6eqvQ/pg==}
+  /mlly@1.4.2:
+    resolution: {integrity: sha512-i/Ykufi2t1EZ6NaPLdfnZk2AX8cs0d+mTzVKuPfqPKPatxLApaBoxJQ9x1/uckXtrS/U5oisPMDkNs0yQTaBRg==}
     dependencies:
       acorn: 8.10.0
       pathe: 1.1.1
@@ -3968,7 +3968,7 @@ packages:
     resolution: {integrity: sha512-nN7pYi0AQqJnoLPC9eHFQ8AcyaixBUOwvqc5TDnIKCMEE6I0y8P7OKA7fPexsXGCGxQDl/cmrLAp26LhcwxZ4A==}
     dependencies:
       jsonc-parser: 3.2.0
-      mlly: 1.4.1
+      mlly: 1.4.2
       pathe: 1.1.1
     dev: true
 
@@ -4739,7 +4739,7 @@ packages:
       '@antfu/utils': 0.7.6
       defu: 6.1.2
       jiti: 1.19.3
-      mlly: 1.4.1
+      mlly: 1.4.2
     dev: true
 
   /unconfig@0.3.7:

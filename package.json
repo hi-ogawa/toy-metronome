@@ -28,7 +28,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.4",
     "@hiogawa/theme-script": "0.0.4-pre.3",
-    "@hiogawa/utils": "1.6.1-pre.5",
+    "@hiogawa/utils": "1.6.1-pre.6",
     "@rehooks/local-storage": "^2.4.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
