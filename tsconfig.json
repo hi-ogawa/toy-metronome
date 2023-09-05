@@ -1,15 +1,16 @@
 {
-  "extends": "@tsconfig/strictest",
-  "include": ["src"],
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "verbatimModuleSyntax": true,
     "checkJs": false,
     "noEmit": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "target": "esnext",
-    "lib": ["esnext", "dom", "webworker"],
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "WebWorker"],
     "types": ["vite/client"],
-    "jsx": "react-jsx"
+    "jsx": "preserve"
   }
 }

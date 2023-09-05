@@ -33,7 +33,6 @@ function setupNavigationCache() {
     new NetworkFirst({
       cacheName: "navigation",
       plugins: [
-        // @ts-expect-error exactOptionalPropertyTypes fails (https://github.com/GoogleChrome/workbox/issues/3141)
         new CacheableResponsePlugin({
           statuses: [0, 200],
         }),

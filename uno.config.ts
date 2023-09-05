@@ -28,6 +28,7 @@ export default defineConfig({
   ],
   rules: [...dummyPresetIconsRules(["ri"])],
   transformers: [
+    // @ts-ignore todo: peer-dep conflict?
     transformerTypescriptDsl(),
     transformerDirectives(),
     transformerVariantGroup(),
