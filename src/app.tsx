@@ -6,12 +6,11 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
-import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import type { CustomMessageSchema } from "./audioworklet/common";
 import { tw } from "./styles/tw";
+import { audioContext, initMetronome } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { identity, sum } from "./utils/misc";
-import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
@@ -30,51 +29,41 @@ export function App() {
 const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
 
 function AppInner() {
-  //
-  // initialize AudioContext and AudioNode
-  //
-  const [audio] = React.useState(() => {
-    // TODO: move to react context?
-    const audioContext = new AudioContext();
-    return { audioContext };
-  });
-
-  const metronomeNode = useMetronomeNode({
-    audioContext: audio.audioContext,
-    onSuccess: (metronomeNode) => {
-      metronomeNode.connect(audio.audioContext.destination);
-    },
-    onError: () => {
+  const metronomeNode = useAsync(initMetronome);
+  React.useEffect(() => {
+    if (metronomeNode.error) {
       toast.error("failed to load metronome");
-    },
-  });
+    }
+  }, [metronomeNode.error]);
 
   //
   // synchronize AudioContext.state with UI
   //
-  const [audioState, setAudioState] = React.useState(
-    () => audio.audioContext.state
-  );
+  const [audioState, setAudioState] = React.useState(() => audioContext.state);
 
-  useAnimationFrameLoop(() => {
-    if (audioState !== audio.audioContext.state) {
-      setAudioState(audio.audioContext.state);
-    }
-    if (audio.audioContext.state === "running") {
-      toast.dismiss(WEB_AUDIO_WARNING);
-    }
-  });
+  React.useEffect(() => {
+    const handler = () => {
+      setAudioState(audioContext.state);
+      if (audioContext.state === "running") {
+        toast.dismiss(WEB_AUDIO_WARNING);
+      }
+    };
+    audioContext.addEventListener("statechange", handler);
+    return () => {
+      audioContext.removeEventListener("statechange", handler);
+    };
+  }, []);
 
   // suggest enabling AudioContext when autoplay is not allowed
   React.useEffect(() => {
-    if (audio.audioContext.state !== "running") {
+    if (audioContext.state !== "running") {
       toast(
         "Web Audio is disabled before user interaction.\nPlease start it either by pressing a left icon or hitting a space key.",
         {
           icon: (
             <button
               className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
-              onClick={() => audio.audioContext.resume()}
+              onClick={() => audioContext.resume()}
             >
               <span className="i-ri-volume-up-line w-6 h-6"></span>
             </button>
@@ -108,7 +97,7 @@ function AppInner() {
       e.preventDefault();
       e.stopPropagation();
       if (audioState === "suspended") {
-        audio.audioContext.resume();
+        audioContext.resume();
         return;
       }
       toggle();
@@ -122,9 +111,9 @@ function AppInner() {
           className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
           onClick={() => {
             if (audioState === "suspended") {
-              audio.audioContext.resume();
+              audioContext.resume();
             } else if (audioState === "running") {
-              audio.audioContext.suspend();
+              audioContext.suspend();
             }
           }}
         >
@@ -377,35 +366,6 @@ function ThemeButton() {
       <span className="dark:i-ri-sun-line light:i-ri-moon-line !w-6 !h-6" />
     </button>
   );
-}
-
-//
-// utils
-//
-
-function useMetronomeNode({
-  audioContext,
-  onSuccess,
-  onError,
-}: {
-  audioContext: AudioContext;
-  onSuccess: (node: AudioWorkletNode) => void;
-  onError: (e: unknown) => void;
-}) {
-  const onSuccessRef = useStableRef(onSuccess);
-  const onErrorRef = useStableRef(onError);
-
-  return useAsync(async () => {
-    try {
-      await audioContext.audioWorklet.addModule(AUDIOWORKLET_URL);
-      const node = new AudioWorkletNode(audioContext, "metronome");
-      onSuccessRef.current(node);
-      return node;
-    } catch (e) {
-      onErrorRef.current(e);
-      throw e;
-    }
-  });
 }
 
 // convert to normal key/value objects since AudioParamMap is too clumsy to work with
