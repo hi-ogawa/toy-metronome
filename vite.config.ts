@@ -3,7 +3,7 @@ import path from "node:path";
 import { themeScriptPlugin } from "@hiogawa/theme-script/dist/vite";
 import react from "@vitejs/plugin-react";
 import unocss from "unocss/vite";
-import { Plugin, defineConfig } from "vite";
+import { type Plugin, defineConfig } from "vite";
 import type { PrecacheEntry } from "workbox-precaching";
 
 export default defineConfig({

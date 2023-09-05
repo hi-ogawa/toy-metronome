@@ -1,8 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { getTheme, setTheme } from "@hiogawa/theme-script";
-import { range, tinyassert } from "@hiogawa/utils";
+import { objectMapValues, range, tinyassert } from "@hiogawa/utils";
 import { useLocalStorage } from "@rehooks/local-storage";
-import { identity, mapValues, sum } from "lodash";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
@@ -11,6 +10,7 @@ import AUDIOWORKLET_URL from "./audioworklet/build/index.js?url";
 import type { CustomMessageSchema } from "./audioworklet/common";
 import { tw } from "./styles/tw";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
+import { identity, sum } from "./utils/misc";
 import { useAnimationFrameLoop } from "./utils/use-animation-frame-loop";
 import { useStableRef } from "./utils/use-stable-ref";
 
@@ -194,7 +194,7 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     []
   );
 
-  const storages = mapValues(params, (v, k) =>
+  const storages = objectMapValues(params, (v, k) =>
     useLocalStorage<number>(`${STORAGE_PREFIX}-${k}`, v.defaultValue)
   );
 
@@ -206,7 +206,7 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
 
   const form = useForm<Record<string, number>>({
     // 0.1 will appear as 0.10000000149011612 (probably due to single-to-double precision conversion)
-    defaultValues: mapValues(storages, ([storageValue]) =>
+    defaultValues: objectMapValues(storages, ([storageValue]) =>
       Number(storageValue.toPrecision(5))
     ),
   });
