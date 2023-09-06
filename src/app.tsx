@@ -1,9 +1,12 @@
 import { Transition } from "@headlessui/react";
 import { getTheme, setTheme } from "@hiogawa/theme-script";
-import { objectMapValues, range, tinyassert } from "@hiogawa/utils";
-import { useLocalStorage } from "@rehooks/local-storage";
+import {
+  objectEntries,
+  objectMapValues,
+  range,
+  tinyassert,
+} from "@hiogawa/utils";
 import React from "react";
-import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import type { CustomMessageSchema } from "./audioworklet/common";
 import { tw } from "./styles/tw";
@@ -11,6 +14,7 @@ import { audioContext, initMetronome } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { identity, sum } from "./utils/misc";
 import { usePromise } from "./utils/query";
+import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
@@ -185,30 +189,26 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
   );
 
   const storages = objectMapValues(params, (v, k) =>
-    useLocalStorage<number>(`${STORAGE_PREFIX}-${k}`, v.defaultValue)
+    useLocalStorage<number>({
+      key: `${STORAGE_PREFIX}-${k}`,
+      defaultValue: v.defaultValue,
+    })
   );
 
-  React.useEffect(() => {
-    for (const [k, [v]] of Object.entries(storages)) {
+  // effect inside loop since object keys are fixed
+  for (const [k, [v]] of objectEntries(storages)) {
+    React.useEffect(() => {
       params[k].value = v;
-    }
-  }, []);
+    }, [v]);
+  }
 
-  const form = useForm<Record<string, number>>({
-    // 0.1 will appear as 0.10000000149011612 (probably due to single-to-double precision conversion)
-    defaultValues: objectMapValues(storages, ([storageValue]) =>
-      Number(storageValue.toPrecision(5))
-    ),
-  });
-  const formValues = form.watch();
+  const formValues = objectMapValues(storages, ([storageValue]) =>
+    Number(storageValue.toPrecision(5))
+  );
 
   function onChange(name: string, value: number) {
-    const param = params[name];
-    const [, setStorage] = storages[name];
     if (Number.isFinite(value)) {
-      param.value = value;
-      form.setValue(name, value);
-      setStorage(value);
+      storages[name][1](value);
     }
   }
 
