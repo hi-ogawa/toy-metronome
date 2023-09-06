@@ -7,10 +7,6 @@ const PROCESS_SAMPLE_SIZE = 128;
 
 const PARAM_KEYS = arrayToEnum(["bpm", "gain", "frequency", "attack", "decay"]);
 
-export type MetronomeRpcRoutes = ReturnType<
-  MetronomeProcessor["createRpcRoutes"]
->;
-
 export class MetronomeProcessor extends AudioWorkletProcessor {
   private sine = new Sine();
   private envelope = new Envelope();
@@ -18,7 +14,7 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     exposeTinyRpc({
-      routes: this.createRpcRoutes(),
+      routes: this,
       adapter: messagePortServerAdapter({
         port: this.port,
       }),
@@ -26,16 +22,13 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
     this.port.start();
   }
 
-  createRpcRoutes() {
-    return {
-      setPlaying: (v: boolean) => {
-        this.envelope.playing = v;
-      },
-      setParam: (k: keyof typeof PARAM_KEYS, v: number) => {
-        k;
-        v;
-      },
-    };
+  setPlaying(v: boolean) {
+    this.envelope.playing = v;
+  }
+
+  setParam(k: keyof typeof PARAM_KEYS, v: number) {
+    k;
+    v;
   }
 
   static override get parameterDescriptors(): ParameterDescriptor[] {
