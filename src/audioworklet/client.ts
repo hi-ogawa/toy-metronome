@@ -22,5 +22,4 @@ export const initMetronomeNode = once(async (audioContext: AudioContext) => {
     }),
   });
   metronomeNode.port.start();
-  return true;
 });
