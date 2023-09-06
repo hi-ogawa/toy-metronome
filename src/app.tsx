@@ -183,9 +183,8 @@ function AppInner() {
 const STORAGE_PREFIX = "metronome-audiot-param";
 
 function MetronomdeNodeComponent() {
-  const node = metronomeNode;
   const params = React.useMemo(
-    () => normalizeAudioParamMap(node.parameters),
+    () => normalizeAudioParamMap(metronomeNode.parameters),
     []
   );
 
