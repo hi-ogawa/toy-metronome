@@ -1,19 +1,11 @@
-import { range } from "@hiogawa/utils";
-import { z } from "zod";
+import { arrayToEnum, range } from "@hiogawa/utils";
 import { decibelToGain } from "../utils/conversion";
 import { CUSTOM_MESSAGE_SCHEMA } from "./common";
 
 // https://webaudio.github.io/web-audio-api/#rendering-loop
 const PROCESS_SAMPLE_SIZE = 128;
 
-const PARAM_KEYS_SCHEMA = z.enum([
-  "bpm",
-  "gain",
-  "frequency",
-  "attack",
-  "decay",
-]);
-const PARAM_KEYS = PARAM_KEYS_SCHEMA.Values;
+const PARAM_KEYS = arrayToEnum(["bpm", "gain", "frequency", "attack", "decay"]);
 
 export class MetronomeProcessor extends AudioWorkletProcessor {
   private sine = new Sine();
