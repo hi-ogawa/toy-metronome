@@ -37,7 +37,7 @@ export function App() {
 const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
 
 function AppInner() {
-  const metronomeNode = useAsync({
+  const initMetronomeQuery = useAsync({
     queryFn: () => initMetronomeNode(audioContext),
     onError(e) {
       console.error(e);
@@ -90,6 +90,7 @@ function AppInner() {
   const [playing, setPlaying] = React.useState(false);
 
   async function toggle() {
+    if (initMetronomeQuery.status !== "success") return;
     metronomeRpcProxy.setPlaying(!playing);
     setPlaying(!playing);
   }
@@ -137,7 +138,7 @@ function AppInner() {
           <span className="i-ri-github-line w-6 h-6"></span>
         </a>
       </div>
-      {metronomeNode.status === "success" && (
+      {initMetronomeQuery.status === "success" && (
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
           <MetronomdeNodeComponent />
           <button
@@ -167,7 +168,7 @@ function AppInner() {
             "absolute inset-0 flex justify-center items-center transition duration-1000"
           ).bg_colorBgElevated.$
         }
-        show={metronomeNode.status === "loading"}
+        show={initMetronomeQuery.status === "loading"}
         enterFrom="opacity-0"
         enterTo="opacity-100"
         leaveFrom="opacity-100"
