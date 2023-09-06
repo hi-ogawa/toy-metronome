@@ -9,9 +9,13 @@ import {
 import React from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useAsync } from "react-use";
-import type { CustomMessageSchema } from "./audioworklet/common";
+import {
+  initMetronomeNode,
+  metronomeNode,
+  metronomeRpcProxy,
+} from "./audioworklet/client";
 import { tw } from "./styles/tw";
-import { audioContext, initMetronome } from "./utils/audio-context";
+import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { identity, sum } from "./utils/misc";
 import { useLocalStorage } from "./utils/storage";
@@ -33,7 +37,7 @@ export function App() {
 const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
 
 function AppInner() {
-  const metronomeNode = useAsync(initMetronome);
+  const metronomeNode = useAsync(async () => initMetronomeNode(audioContext));
   React.useEffect(() => {
     if (metronomeNode.error) {
       toast.error("failed to load metronome");
@@ -85,12 +89,7 @@ function AppInner() {
   const [playing, setPlaying] = React.useState(false);
 
   async function toggle() {
-    metronomeNode.value?.port.postMessage({
-      type: "setState",
-      data: {
-        playing: !playing,
-      },
-    } satisfies CustomMessageSchema);
+    metronomeRpcProxy.setPlaying(!playing);
     setPlaying(!playing);
   }
 
@@ -139,7 +138,7 @@ function AppInner() {
       </div>
       {metronomeNode.value && (
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
-          <MetronomdeNodeComponent node={metronomeNode.value} />
+          <MetronomdeNodeComponent />
           <button
             className={
               tw.antd_btn.antd_btn_primary._(
@@ -181,7 +180,8 @@ function AppInner() {
 
 const STORAGE_PREFIX = "metronome-audiot-param";
 
-function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
+function MetronomdeNodeComponent() {
+  const node = metronomeNode;
   const params = React.useMemo(
     () => normalizeAudioParamMap(node.parameters),
     []

@@ -1,11 +1,15 @@
+import { exposeTinyRpc, messagePortServerAdapter } from "@hiogawa/tiny-rpc";
 import { arrayToEnum, range } from "@hiogawa/utils";
 import { decibelToGain } from "../utils/conversion";
-import { CUSTOM_MESSAGE_SCHEMA } from "./common";
 
 // https://webaudio.github.io/web-audio-api/#rendering-loop
 const PROCESS_SAMPLE_SIZE = 128;
 
 const PARAM_KEYS = arrayToEnum(["bpm", "gain", "frequency", "attack", "decay"]);
+
+export type MetronomeRpcRoutes = ReturnType<
+  MetronomeProcessor["createRpcRoutes"]
+>;
 
 export class MetronomeProcessor extends AudioWorkletProcessor {
   private sine = new Sine();
@@ -13,18 +17,23 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
 
   constructor() {
     super();
-    this.port.onmessage = this.handleMessage;
+    exposeTinyRpc({
+      routes: this.createRpcRoutes(),
+      adapter: messagePortServerAdapter({
+        port: this.port,
+      }),
+    });
+    this.port.start();
   }
 
-  private handleMessage = (e: MessageEvent) => {
-    const message = CUSTOM_MESSAGE_SCHEMA.parse(e.data);
-    switch (message.type) {
-      case "setState": {
-        this.envelope.playing = message.data.playing;
-        return;
-      }
-    }
-  };
+  createRpcRoutes() {
+    return {
+      setPlaying: (v: boolean) => {
+        console.log("== setPlaying", v);
+        this.envelope.playing = v;
+      },
+    };
+  }
 
   static override get parameterDescriptors(): ParameterDescriptor[] {
     return [
