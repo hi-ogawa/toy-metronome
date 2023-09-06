@@ -114,6 +114,7 @@ class Envelope {
 
   next(delta: number, attack: number, release: number, interval: number) {
     let value = 0.0;
+    // keep playing until envelop finishes to avoid glitch
     if (!this.playing && this.phase <= delta) {
       return value;
     }
