@@ -1,9 +1,9 @@
 import React from "react";
 
-// toy tanstack clone for one-shot query on mount
+// toy tanstack query for one-shot promise on mount
 // cf. https://github.com/TanStack/query/blob/98c0803ff82d124d3f862ae8d207514480019d44/packages/react-query/src/useBaseQuery.ts#L59
 
-export function usePromise<T>(options: QueryOptions<T>) {
+export function useAsync<T>(options: QueryOptions<T>) {
   const [observer] = React.useState(() => new QueryObserver(options));
 
   React.useSyncExternalStore(

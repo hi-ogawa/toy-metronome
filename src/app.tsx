@@ -13,7 +13,7 @@ import { tw } from "./styles/tw";
 import { audioContext, initMetronome } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { identity, sum } from "./utils/misc";
-import { usePromise } from "./utils/query";
+import { useAsync } from "./utils/query";
 import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
 
@@ -33,7 +33,7 @@ export function App() {
 const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
 
 function AppInner() {
-  const metronomeNode = usePromise({
+  const metronomeNode = useAsync({
     queryFn: initMetronome,
     onError(e) {
       console.error(e);
