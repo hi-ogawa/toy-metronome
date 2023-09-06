@@ -16,7 +16,6 @@ import {
 import { tw } from "./styles/tw";
 import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { identity, sum } from "./utils/misc";
 import { useAsync } from "./utils/query";
 import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
@@ -261,8 +260,8 @@ function MetronomdeNodeComponent() {
     name,
     label,
     step,
-    toFormat = identity,
-    fromFormat = identity,
+    toFormat = (v) => v,
+    fromFormat = (v) => v,
   }: {
     name: MetronomeParamKey;
     label: string;
@@ -380,4 +379,8 @@ function useDocumentEvent<K extends keyof DocumentEventMap>(
       document.removeEventListener(type, handler);
     };
   });
+}
+
+function sum(ls: number[]): number {
+  return ls.reduce((x, y) => x + y, 0);
 }
