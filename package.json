@@ -51,7 +51,6 @@
     "@types/react-dom": "^18.0.9",
     "@unocss/reset": "^0.47.5",
     "@vitejs/plugin-react": "^2.2.0",
-    "esbuild": "^0.15.16",
     "prettier": "^2.8.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
