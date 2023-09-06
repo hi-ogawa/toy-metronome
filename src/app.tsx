@@ -8,12 +8,12 @@ import {
 } from "@hiogawa/utils";
 import React from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { useAsync } from "react-use";
 import type { CustomMessageSchema } from "./audioworklet/common";
 import { tw } from "./styles/tw";
 import { audioContext, initMetronome } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { identity, sum } from "./utils/misc";
+import { useAsync } from "./utils/query";
 import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
 
@@ -33,12 +33,13 @@ export function App() {
 const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
 
 function AppInner() {
-  const metronomeNode = useAsync(initMetronome);
-  React.useEffect(() => {
-    if (metronomeNode.error) {
+  const metronomeNode = useAsync({
+    queryFn: initMetronome,
+    onError(e) {
+      console.error(e);
       toast.error("failed to load metronome");
-    }
-  }, [metronomeNode.error]);
+    },
+  });
 
   //
   // synchronize AudioContext.state with UI
@@ -85,7 +86,7 @@ function AppInner() {
   const [playing, setPlaying] = React.useState(false);
 
   async function toggle() {
-    metronomeNode.value?.port.postMessage({
+    metronomeNode.data?.port.postMessage({
       type: "setState",
       data: {
         playing: !playing,
@@ -137,9 +138,9 @@ function AppInner() {
           <span className="i-ri-github-line w-6 h-6"></span>
         </a>
       </div>
-      {metronomeNode.value && (
+      {metronomeNode.status === "success" && (
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
-          <MetronomdeNodeComponent node={metronomeNode.value} />
+          <MetronomdeNodeComponent node={metronomeNode.data} />
           <button
             className={
               tw.antd_btn.antd_btn_primary._(
@@ -167,7 +168,7 @@ function AppInner() {
             "absolute inset-0 flex justify-center items-center transition duration-1000"
           ).bg_colorBgElevated.$
         }
-        show={metronomeNode.loading}
+        show={metronomeNode.status === "loading"}
         enterFrom="opacity-0"
         enterTo="opacity-100"
         leaveFrom="opacity-100"
