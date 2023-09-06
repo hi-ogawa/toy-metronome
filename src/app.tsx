@@ -189,7 +189,7 @@ function MetronomdeNodeComponent() {
   );
 
   // the data in the localstorage is the ground truth.
-  // we sync it with audioworklet state via effect.
+  // we sync it with audioworklet state by only writing to it without reading it back.
   const storages = objectMapValues(params, (v, k) =>
     useLocalStorage<number>({
       key: `${STORAGE_PREFIX}-${k}`,

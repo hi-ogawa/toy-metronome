@@ -31,6 +31,10 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
       setPlaying: (v: boolean) => {
         this.envelope.playing = v;
       },
+      setParam: (k: keyof typeof PARAM_KEYS, v: number) => {
+        k;
+        v;
+      },
     };
   }
 
