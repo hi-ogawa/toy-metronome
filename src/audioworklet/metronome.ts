@@ -29,7 +29,6 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
   createRpcRoutes() {
     return {
       setPlaying: (v: boolean) => {
-        console.log("== setPlaying", v);
         this.envelope.playing = v;
       },
     };
