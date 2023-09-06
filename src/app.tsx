@@ -271,6 +271,7 @@ function MetronomdeNodeComponent() {
   }) {
     const value = formValues[name];
 
+    // okay-ish to run hook in render helper since no conditionals
     const [temporary, setTemporary] = React.useState(
       toFormat(value).toFixed(1)
     );
