@@ -10,13 +10,13 @@ import type { MetronomeProcessor } from "./metronome";
 
 // singleton
 export let metronomeNode: AudioWorkletNode;
-export let metronomeRpcProxy: TinyRpcProxy<MetronomeProcessor>;
+export let metronomeRpc: TinyRpcProxy<MetronomeProcessor>;
 
 export const initMetronomeNode = once(async (audioContext: AudioContext) => {
   await audioContext.audioWorklet.addModule(AUDIOWORKLET_URL);
   metronomeNode = new AudioWorkletNode(audioContext, METRONOME_PROCESSOR_NAME);
   metronomeNode.connect(audioContext.destination);
-  metronomeRpcProxy = proxyTinyRpc({
+  metronomeRpc = proxyTinyRpc({
     adapter: messagePortClientAdapter({
       port: metronomeNode.port,
     }),

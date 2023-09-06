@@ -29,3 +29,5 @@ export const METRONOME_PARAM_SPEC = {
     maxValue: 1,
   },
 };
+
+export type MetronomeParamKey = keyof typeof METRONOME_PARAM_SPEC;
