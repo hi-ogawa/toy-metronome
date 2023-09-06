@@ -1,7 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { getTheme, setTheme } from "@hiogawa/theme-script";
 import { objectMapValues, range, tinyassert } from "@hiogawa/utils";
-import { useLocalStorage } from "@rehooks/local-storage";
+// import { useLocalStorage } from "@rehooks/local-storage";
 import React from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
@@ -11,6 +11,7 @@ import { tw } from "./styles/tw";
 import { audioContext, initMetronome } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { identity, sum } from "./utils/misc";
+import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
@@ -184,7 +185,10 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
   );
 
   const storages = objectMapValues(params, (v, k) =>
-    useLocalStorage<number>(`${STORAGE_PREFIX}-${k}`, v.defaultValue)
+    useLocalStorage<number>({
+      key: `${STORAGE_PREFIX}-${k}`,
+      defaultValue: v.defaultValue,
+    })
   );
 
   React.useEffect(() => {
