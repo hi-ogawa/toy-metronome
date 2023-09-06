@@ -14,9 +14,6 @@ dependencies:
   '@hiogawa/utils':
     specifier: 1.6.1-pre.6
     version: 1.6.1-pre.6
-  '@rehooks/local-storage':
-    specifier: ^2.4.4
-    version: 2.4.4(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -1614,14 +1611,6 @@ packages:
   /@polka/url@1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
-
-  /@rehooks/local-storage@2.4.4(react@18.2.0):
-    resolution: {integrity: sha512-zE+kfOkG59n/1UTxdmbwktIosclr67Nlbf2MzUJ9mNtCSypVscNHeD1qT6JCSo5Pjj8DO893IKWNLJqKKzDL/Q==}
-    peerDependencies:
-      react: '>=16.8.0'
-    dependencies:
-      react: 18.2.0
-    dev: false
 
   /@rollup/plugin-babel@5.3.1(@babel/core@7.20.5)(rollup@2.79.1):
     resolution: {integrity: sha512-WFfdLWU/xVWKeRQnKmIAQULUI7Il0gZnBIH/ZFO069wYIfPu+8zrfp/KMW0atmELoRDq8FbiP3VCss9MhCut7Q==}
