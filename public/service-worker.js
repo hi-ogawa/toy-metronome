@@ -1,10 +1,7 @@
-// no-op service worker to rescue from buggy service worker and start from clean slate
+// reset service workers installed in the past
 // https://developer.chrome.com/docs/workbox/remove-buggy-service-workers/
 
-// set global for typescript
-declare let self: ServiceWorkerGlobalScope;
-
-export function mainNoOp() {
+function main() {
   self.addEventListener("install", () => {
     self.skipWaiting();
   });
@@ -18,3 +15,5 @@ export function mainNoOp() {
     }
   });
 }
+
+main();

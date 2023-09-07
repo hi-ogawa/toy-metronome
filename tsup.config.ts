@@ -7,10 +7,4 @@ export default [
     format: ["esm"],
     noExternal: [/.*/],
   }),
-  defineConfig({
-    entry: ["src/service-worker/index.ts"],
-    outDir: "src/service-worker/build",
-    format: ["esm"],
-    noExternal: [/.*/],
-  }),
 ];
