@@ -1,11 +1,5 @@
 import { antdPreset } from "@hiogawa/unocss-preset-antd";
 import {
-  dummyPreset,
-  dummyPresetIconsRules,
-  filterColorPallete,
-  transformerTypescriptDsl,
-} from "@hiogawa/unocss-typescript-dsl";
-import {
   defineConfig,
   presetIcons,
   presetUno,
@@ -18,19 +12,12 @@ import {
 export default defineConfig({
   presets: [
     antdPreset(),
-    filterColorPallete(presetUno()),
+    presetUno(),
     presetIcons({
       extraProperties: {
         display: "inline-block",
       },
     }),
-    dummyPreset(),
   ],
-  rules: [...dummyPresetIconsRules(["ri"])],
-  transformers: [
-    // @ts-ignore todo: peer-dep conflict?
-    transformerTypescriptDsl(),
-    transformerDirectives(),
-    transformerVariantGroup(),
-  ],
+  transformers: [transformerDirectives(), transformerVariantGroup()],
 });

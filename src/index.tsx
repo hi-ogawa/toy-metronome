@@ -1,4 +1,5 @@
-import "./styles";
+import "virtual:uno.css";
+import "@hiogawa/unocss-preset-antd/dist/reset";
 import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import { createRoot } from "react-dom/client";
