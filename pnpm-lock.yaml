@@ -47,8 +47,8 @@ devDependencies:
     specifier: 1.1.2-pre.0
     version: 1.1.2-pre.0(prettier@2.8.0)(typescript@5.2.2)
   '@hiogawa/unocss-preset-antd':
-    specifier: ^2.0.1
-    version: 2.0.1(@unocss/preset-uno@0.55.7)(unocss@0.47.5)
+    specifier: 2.2.1-pre.3
+    version: 2.2.1-pre.3(@unocss/preset-uno@0.55.7)(unocss@0.47.5)
   '@iconify-json/ri':
     specifier: ^1.1.4
     version: 1.1.4
@@ -1653,8 +1653,8 @@ packages:
     resolution: {integrity: sha512-YYFssKJ+abyHMfYSK1IyuL9NccPWWcziG5xf4HVXHmXuT+nLK402WMheSl5A0qlpCBdaO0obtUZfKPAPQj3GfQ==}
     dev: false
 
-  /@hiogawa/unocss-preset-antd@2.0.1(@unocss/preset-uno@0.55.7)(unocss@0.47.5):
-    resolution: {integrity: sha512-7W2N87cw+tohFR3ROKuQlWkuO5BmmVFpZxWM5+rtyIqXKOOGZP/xfcuNfdpzLGFfV6UfuhYaGf/H2vzuokc+Vw==}
+  /@hiogawa/unocss-preset-antd@2.2.1-pre.3(@unocss/preset-uno@0.55.7)(unocss@0.47.5):
+    resolution: {integrity: sha512-NjJ0uKIA6tqmDTXQkO52Hb83tBJjwjOCUx9cgodxiROjTCuEP+yfkmJyzMlDzfxRUl8DnHd8IijnZl2cAX7s9Q==}
     peerDependencies:
       '@unocss/preset-uno': '*'
       unocss: '*'
