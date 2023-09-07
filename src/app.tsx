@@ -90,6 +90,11 @@ function AppInner() {
 
   async function toggle() {
     if (initMetronomeQuery.status !== "success") return;
+
+    // browser doesn't allow autoplay, so manually resume on first user gesture
+    if (!playing && audioContext.state === "suspended") {
+      audioContext.resume();
+    }
     metronomeRpc.setPlaying(!playing);
     setPlaying(!playing);
   }
@@ -97,13 +102,9 @@ function AppInner() {
   // keyboard shortcut
   useDocumentEvent("keyup", (e) => {
     if (e.key === " ") {
-      // prevent space key to trigger button click
+      // prevent space key from triggering button click
       e.preventDefault();
       e.stopPropagation();
-      if (audioState === "suspended") {
-        audioContext.resume();
-        return;
-      }
       toggle();
     }
   });
