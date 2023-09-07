@@ -33,9 +33,8 @@ export function App() {
   );
 }
 
-const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
-
 function AppInner() {
+  // initialize audio worklet node
   const initMetronomeQuery = useAsync({
     queryFn: () => initMetronomeNode(audioContext),
     onError(e) {
@@ -44,56 +43,16 @@ function AppInner() {
     },
   });
 
-  //
-  // synchronize AudioContext.state with UI
-  //
-  const [audioState, setAudioState] = React.useState(() => audioContext.state);
-
-  React.useEffect(() => {
-    const handler = () => {
-      setAudioState(audioContext.state);
-      if (audioContext.state === "running") {
-        toast.dismiss(WEB_AUDIO_WARNING);
-      }
-    };
-    audioContext.addEventListener("statechange", handler);
-    return () => {
-      audioContext.removeEventListener("statechange", handler);
-    };
-  }, []);
-
-  // suggest enabling AudioContext when autoplay is not allowed
-  React.useEffect(() => {
-    if (audioContext.state !== "running") {
-      toast(
-        "Web Audio is disabled before user interaction.\nPlease start it either by pressing a left icon or hitting a space key.",
-        {
-          icon: (
-            <button
-              className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
-              onClick={() => audioContext.resume()}
-            >
-              <span className="i-ri-volume-up-line w-6 h-6"></span>
-            </button>
-          ),
-          duration: Infinity,
-          id: WEB_AUDIO_WARNING,
-        }
-      );
-    }
-  }, []);
-
-  //
-  // metronome state
-  //
+  // sync metronome play state with UI
   const [playing, setPlaying] = React.useState(false);
 
   async function toggle() {
     if (initMetronomeQuery.status !== "success") return;
 
-    // browser doesn't allow autoplay, so manually resume on first user gesture
+    // browser doesn't allow autoplay, so manually resume on first user gesture.
+    // hopefully this won't make glitch sound.
     if (!playing && audioContext.state === "suspended") {
-      audioContext.resume();
+      await audioContext.resume();
     }
     metronomeRpc.setPlaying(!playing);
     setPlaying(!playing);
@@ -112,23 +71,6 @@ function AppInner() {
   return (
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-3 top-3 flex gap-3">
-        <button
-          className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
-          onClick={() => {
-            if (audioState === "suspended") {
-              audioContext.resume();
-            } else if (audioState === "running") {
-              audioContext.suspend();
-            }
-          }}
-        >
-          {audioState === "suspended" && (
-            <span className="i-ri-volume-mute-line w-6 h-6"></span>
-          )}
-          {audioState === "running" && (
-            <span className="i-ri-volume-up-line w-6 h-6"></span>
-          )}
-        </button>
         <ThemeButton />
         <a
           className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
@@ -147,7 +89,6 @@ function AppInner() {
                 "w-full flex justify-center items-center py-0.5"
               ).$
             }
-            disabled={audioState !== "running"}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
