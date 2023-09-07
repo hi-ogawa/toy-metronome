@@ -11,6 +11,9 @@ dependencies:
   '@hiogawa/theme-script':
     specifier: 0.0.4-pre.3
     version: 0.0.4-pre.3(vite@3.2.4)
+  '@hiogawa/tiny-rpc':
+    specifier: 0.2.3-pre.11
+    version: 0.2.3-pre.11
   '@hiogawa/utils':
     specifier: 1.6.1-pre.6
     version: 1.6.1-pre.6
@@ -38,9 +41,6 @@ dependencies:
   workbox-window:
     specifier: ^6.5.4
     version: 6.5.4
-  zod:
-    specifier: ^3.19.1
-    version: 3.19.1
 
 devDependencies:
   '@hiogawa/isort-ts':
@@ -1654,6 +1654,10 @@ packages:
         optional: true
     dependencies:
       vite: 3.2.4
+    dev: false
+
+  /@hiogawa/tiny-rpc@0.2.3-pre.11:
+    resolution: {integrity: sha512-YYFssKJ+abyHMfYSK1IyuL9NccPWWcziG5xf4HVXHmXuT+nLK402WMheSl5A0qlpCBdaO0obtUZfKPAPQj3GfQ==}
     dev: false
 
   /@hiogawa/unocss-preset-antd@2.0.1(@unocss/preset-uno@0.55.7)(unocss@0.47.5):
@@ -5369,10 +5373,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
-
-  /zod@3.19.1:
-    resolution: {integrity: sha512-LYjZsEDhCdYET9ikFu6dVPGp2YH9DegXjdJToSzD9rO6fy4qiRYFoyEYwps88OseJlPyl2NOe2iJuhEhL7IpEA==}
-    dev: false
 
   /zod@3.21.0:
     resolution: {integrity: sha512-UYdykTcVxB6lfdyLzAqLyyYAlOcpoluECvjsdoaqfQmz9p+3LRaIqYcNiL/J2kFYp66fBM8wwBvIGVEjq7KtZw==}

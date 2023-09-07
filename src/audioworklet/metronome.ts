@@ -1,83 +1,38 @@
-import { range } from "@hiogawa/utils";
-import { z } from "zod";
-import { decibelToGain } from "../utils/conversion";
-import { CUSTOM_MESSAGE_SCHEMA } from "./common";
+import { exposeTinyRpc, messagePortServerAdapter } from "@hiogawa/tiny-rpc";
+import { objectMapValues, range } from "@hiogawa/utils";
+import { METRONOME_PARAM_SPEC, type MetronomeParamKey } from "./common";
 
 // https://webaudio.github.io/web-audio-api/#rendering-loop
 const PROCESS_SAMPLE_SIZE = 128;
 
-const PARAM_KEYS_SCHEMA = z.enum([
-  "bpm",
-  "gain",
-  "frequency",
-  "attack",
-  "decay",
-]);
-const PARAM_KEYS = PARAM_KEYS_SCHEMA.Values;
-
 export class MetronomeProcessor extends AudioWorkletProcessor {
   private sine = new Sine();
   private envelope = new Envelope();
+  private params = objectMapValues(METRONOME_PARAM_SPEC, (v) => v.defaultValue);
 
   constructor() {
     super();
-    this.port.onmessage = this.handleMessage;
+    exposeTinyRpc({
+      routes: this,
+      adapter: messagePortServerAdapter({
+        port: this.port,
+      }),
+    });
+    this.port.start();
   }
 
-  private handleMessage = (e: MessageEvent) => {
-    const message = CUSTOM_MESSAGE_SCHEMA.parse(e.data);
-    switch (message.type) {
-      case "setState": {
-        this.envelope.playing = message.data.playing;
-        return;
-      }
-    }
-  };
+  setPlaying(v: boolean) {
+    this.envelope.playing = v;
+  }
 
-  static override get parameterDescriptors(): ParameterDescriptor[] {
-    return [
-      {
-        name: PARAM_KEYS.bpm,
-        defaultValue: 140,
-        minValue: 1,
-        maxValue: 320,
-        automationRate: "k-rate",
-      },
-      {
-        name: PARAM_KEYS.gain,
-        defaultValue: decibelToGain(-10),
-        minValue: decibelToGain(-40),
-        maxValue: decibelToGain(10),
-        automationRate: "k-rate",
-      },
-      {
-        name: PARAM_KEYS.frequency,
-        defaultValue: 880,
-        minValue: 10,
-        maxValue: 3000,
-        automationRate: "k-rate",
-      },
-      {
-        name: PARAM_KEYS.attack,
-        defaultValue: 0.005,
-        minValue: 0,
-        maxValue: 1,
-        automationRate: "k-rate",
-      },
-      {
-        name: PARAM_KEYS.decay,
-        defaultValue: 0.05,
-        minValue: 0,
-        maxValue: 1,
-        automationRate: "k-rate",
-      },
-    ];
+  setParam(k: MetronomeParamKey, v: number) {
+    this.params[k] = v;
   }
 
   override process(
     _inputs: Float32Array[][],
     outputs: Float32Array[][],
-    parameters: Record<string, Float32Array>
+    _parameters: Record<string, Float32Array>
   ): boolean {
     // handle only first output/channel for simplicity
     const channel = outputs[0]?.[0];
@@ -86,18 +41,15 @@ export class MetronomeProcessor extends AudioWorkletProcessor {
     }
 
     // parameters
-    const gain = parameters[PARAM_KEYS.gain][0];
-    const bpm = parameters[PARAM_KEYS.bpm][0];
-    const frequency = parameters[PARAM_KEYS.frequency][0];
-    const attackDuration = parameters[PARAM_KEYS.attack][0];
-    const decayDuration = parameters[PARAM_KEYS.decay][0];
+    const { gain, bpm, frequency, attack, decay } = this.params;
 
+    // process sine and envelope
     for (const i of range(PROCESS_SAMPLE_SIZE)) {
       const sineValue = this.sine.next(frequency / sampleRate);
       const envelopeValue = this.envelope.next(
         1 / sampleRate,
-        attackDuration,
-        decayDuration,
+        attack,
+        decay,
         60 / bpm
       );
       channel[i] = gain * envelopeValue * sineValue;
@@ -122,6 +74,7 @@ class Envelope {
 
   next(delta: number, attack: number, release: number, interval: number) {
     let value = 0.0;
+    // keep playing until envelop finishes to avoid glitch
     if (!this.playing && this.phase <= delta) {
       return value;
     }

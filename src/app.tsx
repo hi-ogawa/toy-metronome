@@ -8,11 +8,14 @@ import {
 } from "@hiogawa/utils";
 import React from "react";
 import toast, { Toaster } from "react-hot-toast";
-import type { CustomMessageSchema } from "./audioworklet/common";
+import { initMetronomeNode, metronomeRpc } from "./audioworklet/client";
+import {
+  METRONOME_PARAM_SPEC,
+  type MetronomeParamKey,
+} from "./audioworklet/common";
 import { tw } from "./styles/tw";
-import { audioContext, initMetronome } from "./utils/audio-context";
+import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { identity, sum } from "./utils/misc";
 import { useAsync } from "./utils/query";
 import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
@@ -33,8 +36,8 @@ export function App() {
 const WEB_AUDIO_WARNING = "WEB_AUDIO_WARNING";
 
 function AppInner() {
-  const metronomeNode = useAsync({
-    queryFn: initMetronome,
+  const initMetronomeQuery = useAsync({
+    queryFn: () => initMetronomeNode(audioContext),
     onError(e) {
       console.error(e);
       toast.error("failed to load metronome");
@@ -86,12 +89,8 @@ function AppInner() {
   const [playing, setPlaying] = React.useState(false);
 
   async function toggle() {
-    metronomeNode.data?.port.postMessage({
-      type: "setState",
-      data: {
-        playing: !playing,
-      },
-    } satisfies CustomMessageSchema);
+    if (initMetronomeQuery.status !== "success") return;
+    metronomeRpc.setPlaying(!playing);
     setPlaying(!playing);
   }
 
@@ -138,9 +137,9 @@ function AppInner() {
           <span className="i-ri-github-line w-6 h-6"></span>
         </a>
       </div>
-      {metronomeNode.status === "success" && (
+      {initMetronomeQuery.status === "success" && (
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
-          <MetronomdeNodeComponent node={metronomeNode.data} />
+          <MetronomdeNodeComponent />
           <button
             className={
               tw.antd_btn.antd_btn_primary._(
@@ -168,7 +167,7 @@ function AppInner() {
             "absolute inset-0 flex justify-center items-center transition duration-1000"
           ).bg_colorBgElevated.$
         }
-        show={metronomeNode.status === "loading"}
+        show={initMetronomeQuery.status === "loading"}
         enterFrom="opacity-0"
         enterTo="opacity-100"
         leaveFrom="opacity-100"
@@ -182,23 +181,20 @@ function AppInner() {
 
 const STORAGE_PREFIX = "metronome-audiot-param";
 
-function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
-  const params = React.useMemo(
-    () => normalizeAudioParamMap(node.parameters),
-    []
-  );
-
-  const storages = objectMapValues(params, (v, k) =>
+function MetronomdeNodeComponent() {
+  // the data in the localstorage is the ground truth.
+  // we sync it to audioworklet state.
+  const storages = objectMapValues(METRONOME_PARAM_SPEC, (spec, k) =>
     useLocalStorage<number>({
       key: `${STORAGE_PREFIX}-${k}`,
-      defaultValue: v.defaultValue,
+      defaultValue: spec.defaultValue,
     })
   );
 
   // effect inside loop since object keys are fixed
   for (const [k, [v]] of objectEntries(storages)) {
     React.useEffect(() => {
-      params[k].value = v;
+      metronomeRpc.setParam(k, v);
     }, [v]);
   }
 
@@ -206,7 +202,7 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     Number(storageValue.toPrecision(5))
   );
 
-  function onChange(name: string, value: number) {
+  function onChange(name: MetronomeParamKey, value: number) {
     if (Number.isFinite(value)) {
       storages[name][1](value);
     }
@@ -264,18 +260,18 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
     name,
     label,
     step,
-    toFormat = identity,
-    fromFormat = identity,
+    toFormat = (v) => v,
+    fromFormat = (v) => v,
   }: {
-    name: string;
+    name: MetronomeParamKey;
     label: string;
     step: number;
     toFormat?: (value: number) => number;
     fromFormat?: (value: number) => number;
   }) {
-    const param = params[name];
     const value = formValues[name];
 
+    // okay-ish to run hook in render helper since no conditionals
     const [temporary, setTemporary] = React.useState(
       toFormat(value).toFixed(1)
     );
@@ -310,8 +306,8 @@ function MetronomdeNodeComponent({ node }: { node: AudioWorkletNode }) {
         <input
           className="w-full"
           type="range"
-          min={toFormat(param.minValue)}
-          max={toFormat(param.maxValue)}
+          min={toFormat(METRONOME_PARAM_SPEC[name].minValue)}
+          max={toFormat(METRONOME_PARAM_SPEC[name].maxValue)}
           step={step}
           value={toFormat(value)}
           onChange={(e) => onChange(name, fromFormat(e.target.valueAsNumber))}
@@ -369,17 +365,6 @@ function ThemeButton() {
   );
 }
 
-// convert to normal key/value objects since AudioParamMap is too clumsy to work with
-function normalizeAudioParamMap(
-  audioParamMap: AudioParamMap
-): Record<string, AudioParam> {
-  const record: Record<string, AudioParam> = {};
-  audioParamMap.forEach((v, k) => {
-    record[k] = v;
-  });
-  return record;
-}
-
 function useDocumentEvent<K extends keyof DocumentEventMap>(
   type: K,
   handler: (e: DocumentEventMap[K]) => void
@@ -395,4 +380,8 @@ function useDocumentEvent<K extends keyof DocumentEventMap>(
       document.removeEventListener(type, handler);
     };
   });
+}
+
+function sum(ls: number[]): number {
+  return ls.reduce((x, y) => x + y, 0);
 }
