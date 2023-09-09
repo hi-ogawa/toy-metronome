@@ -13,7 +13,6 @@
     "build:vite": "vite build",
     "build:vercel": "bash misc/vercel/build.sh",
     "preview": "vite preview",
-    "generate-tw": "unocss-typescript-dsl --outDir src/styles/tw",
     "tsc": "tsc",
     "lint": "pnpm run --seq /^lint:/",
     "lint-check": "pnpm run --seq /^lint-check:/",
@@ -35,8 +34,7 @@
   },
   "devDependencies": {
     "@hiogawa/isort-ts": "1.1.2-pre.0",
-    "@hiogawa/unocss-preset-antd": "^2.0.1",
-    "@hiogawa/unocss-typescript-dsl": "2.0.0-pre.4",
+    "@hiogawa/unocss-preset-antd": "2.2.1-pre.3",
     "@iconify-json/ri": "^1.1.4",
     "@tsconfig/strictest": "^2.0.2",
     "@types/react": "^18.0.26",
