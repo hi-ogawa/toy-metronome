@@ -5,15 +5,9 @@ import React from "react";
 
 export function useAsync<T>(options: QueryOptions<T>) {
   const [observer] = React.useState(() => new QueryObserver(options));
-
-  React.useSyncExternalStore(
-    React.useCallback((onStorechange) => observer.subscribe(onStorechange), []),
-    () => observer.getCurrentResult()
-  );
-
+  React.useSyncExternalStore(observer.subscribe, observer.getSnapshot);
   React.useEffect(() => observer.fetch(), []);
-
-  return observer.getCurrentResult();
+  return observer.getSnapshot();
 }
 
 type QueryOptions<T> = {
@@ -74,12 +68,10 @@ class QueryObserver<T> {
     this.listeners.forEach((l) => l());
   }
 
-  subscribe(listener: () => void) {
+  subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
-  }
+  };
 
-  getCurrentResult() {
-    return this.result;
-  }
+  getSnapshot = () => this.result;
 }
