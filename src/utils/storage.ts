@@ -13,7 +13,10 @@ export function useLocalStorage<T>({
   stringify?: (v: T) => string;
 }) {
   React.useSyncExternalStore(
-    (onStoreChange) => localStorageStore.subscribe(key, onStoreChange),
+    React.useCallback(
+      (onStoreChange) => localStorageStore.subscribe(key, onStoreChange),
+      [key]
+    ),
     () => localStorageStore.get(key)
   );
 
