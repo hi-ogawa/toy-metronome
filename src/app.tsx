@@ -13,7 +13,6 @@ import {
   METRONOME_PARAM_SPEC,
   type MetronomeParamKey,
 } from "./audioworklet/common";
-import { tw } from "./styles/tw";
 import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { useAsync } from "./utils/query";
@@ -25,7 +24,7 @@ export function App() {
     <>
       <Toaster
         toastOptions={{
-          className: tw.important(tw.bg_colorBgElevated.text_colorText).$,
+          className: "!bg-colorBgElevated !text-colorText",
         }}
       />
       <AppInner />
@@ -73,7 +72,7 @@ function AppInner() {
       <div className="absolute right-3 top-3 flex gap-3">
         <ThemeButton />
         <a
-          className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
+          className="antd-btn antd-btn-ghost flex items-center"
           href="https://github.com/hi-ogawa/toy-metronome"
           target="_blank"
         >
@@ -84,11 +83,7 @@ function AppInner() {
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
           <MetronomdeNodeComponent />
           <button
-            className={
-              tw.antd_btn.antd_btn_primary._(
-                "w-full flex justify-center items-center py-0.5"
-              ).$
-            }
+            className="antd-btn antd-btn-primary w-full flex justify-center items-center py-0.5"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -104,18 +99,14 @@ function AppInner() {
         </div>
       )}
       <Transition
-        className={
-          tw._(
-            "absolute inset-0 flex justify-center items-center transition duration-1000"
-          ).bg_colorBgElevated.$
-        }
+        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-colorBgElevated"
         show={initMetronomeQuery.status === "loading"}
         enterFrom="opacity-0"
         enterTo="opacity-100"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <span className={tw.antd_spin._("w-10 h-10 !border-4").$} />
+        <span className="antd-spin w-10 h-10 !border-4" />
       </Transition>
     </div>
   );
@@ -227,7 +218,7 @@ function MetronomdeNodeComponent() {
           <span>{label}</span>
           <span>=</span>
           <input
-            className={tw.antd_input.text_center._("w-[80px]").$}
+            className="antd-input text-center w-[80px]"
             value={temporary}
             onChange={(e) => setTemporary(e.target.value)}
             onBlur={() => setTemporary(toFormat(value).toFixed(1))}
@@ -279,7 +270,7 @@ function BpmDetectionButton({
   return (
     <button
       title="Tap it to derive BPM"
-      className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
+      className="antd-btn antd-btn-ghost flex items-center"
       onClick={() => onClick()}
     >
       <span className="i-ri-fingerprint-line w-4 h-4"></span>
@@ -299,7 +290,7 @@ function deriveBpm(times: number[]): number | undefined {
 function ThemeButton() {
   return (
     <button
-      className={tw.antd_btn.antd_btn_ghost.flex.items_center.$}
+      className="antd-btn antd-btn-ghost flex items-center"
       onClick={() => setTheme(getTheme() === "dark" ? "light" : "dark")}
     >
       <span className="dark:i-ri-sun-line light:i-ri-moon-line !w-6 !h-6" />

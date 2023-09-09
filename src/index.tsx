@@ -1,15 +1,13 @@
-import "./styles";
+import "virtual:uno.css";
 import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./app";
-import { registerServiceWorker } from "./service-worker/window";
 import { initAudioContext } from "./utils/audio-context";
+import { registerServiceWorker } from "./utils/register-service-worker";
 
 function main() {
-  if (import.meta.env.PROD) {
-    registerServiceWorker(); // hunging promise
-  }
+  registerServiceWorker(); // hunging promise
   initAudioContext();
   const el = document.querySelector("#root");
   tinyassert(el);
