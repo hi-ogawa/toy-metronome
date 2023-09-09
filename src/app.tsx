@@ -1,4 +1,3 @@
-import { Transition } from "@headlessui/react";
 import { getTheme, setTheme } from "@hiogawa/theme-script";
 import {
   objectEntries,
@@ -70,6 +69,9 @@ function AppInner() {
   return (
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-3 top-3 flex gap-3">
+        {initMetronomeQuery.status === "loading" && (
+          <span className="antd-spin w-6 h-6"></span>
+        )}
         <ThemeButton />
         <a
           className="antd-btn antd-btn-ghost flex items-center"
@@ -101,16 +103,6 @@ function AppInner() {
           </button>
         </div>
       )}
-      <Transition
-        className="absolute inset-0 flex justify-center items-center transition duration-1000 bg-colorBgElevated"
-        show={initMetronomeQuery.status === "loading"}
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <span className="antd-spin w-10 h-10 !border-4" />
-      </Transition>
     </div>
   );
 }

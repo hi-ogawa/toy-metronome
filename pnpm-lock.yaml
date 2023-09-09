@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@headlessui/react':
-    specifier: ^1.7.4
-    version: 1.7.4(react-dom@18.2.0)(react@18.2.0)
   '@hiogawa/theme-script':
     specifier: 0.0.4-pre.3
     version: 0.0.4-pre.3(vite@3.2.4)
@@ -571,18 +568,6 @@ packages:
     dev: true
     optional: true
 
-  /@headlessui/react@1.7.4(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-D8n5yGCF3WIkPsjEYeM8knn9jQ70bigGGb5aUvN6y4BGxcT3OcOQOKcM3zRGllRCZCFxCZyQvYJF6ZE7bQUOyQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: ^16 || ^17 || ^18
-      react-dom: ^16 || ^17 || ^18
-    dependencies:
-      client-only: 0.0.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
   /@hiogawa/isort-ts@1.1.2-pre.0(prettier@2.8.0)(typescript@5.2.2):
     resolution: {integrity: sha512-cqbrBLxpkFEORhBsLfE2MKMxyp1r/MTEeCgFG1rzjfZKwQDvekaEgZ96PGxcJqi7amhmJmlAuZJHFH8d1G7jXQ==}
     hasBin: true
@@ -1078,10 +1063,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
-
-  /client-only@0.0.1:
-    resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
-    dev: false
 
   /color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
