@@ -83,7 +83,10 @@ function AppInner() {
         <div className="w-full max-w-sm flex flex-col items-center gap-5 px-4">
           <MetronomdeNodeComponent />
           <button
-            className="antd-btn antd-btn-primary w-full flex justify-center items-center py-0.5"
+            className={cls(
+              "antd-btn antd-btn-primary w-full flex justify-center items-center py-0.5",
+              !playing && "brightness-75"
+            )}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -110,6 +113,10 @@ function AppInner() {
       </Transition>
     </div>
   );
+}
+
+function cls(...args: unknown[]): string {
+  return args.filter(Boolean).join(" ");
 }
 
 const STORAGE_PREFIX = "metronome-audiot-param";
