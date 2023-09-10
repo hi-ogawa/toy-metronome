@@ -1,4 +1,5 @@
 import { getTheme, setTheme } from "@hiogawa/theme-script";
+import { useTinyStoreStorage } from "@hiogawa/tiny-store/dist/react";
 import {
   objectEntries,
   objectMapValues,
@@ -15,7 +16,6 @@ import {
 import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
 import { useAsync } from "./utils/query";
-import { useLocalStorage } from "./utils/storage";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
@@ -117,10 +117,7 @@ function MetronomdeNodeComponent() {
   // the data in the localstorage is the ground truth.
   // we sync it to audioworklet state.
   const storages = objectMapValues(METRONOME_PARAM_SPEC, (spec, k) =>
-    useLocalStorage<number>({
-      key: `${STORAGE_PREFIX}-${k}`,
-      defaultValue: spec.defaultValue,
-    })
+    useTinyStoreStorage(`${STORAGE_PREFIX}-${k}`, spec.defaultValue)
   );
 
   // effect inside loop since object keys are fixed
