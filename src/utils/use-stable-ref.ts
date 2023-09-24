@@ -1,4 +1,4 @@
-import React from "preact/compat";
+import React from "react";
 
 export function useStableRef<T>(value: T) {
   const ref = React.useRef(value);
