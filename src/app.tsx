@@ -7,7 +7,6 @@ import {
   tinyassert,
 } from "@hiogawa/utils";
 import React from "react";
-import toast, { Toaster } from "react-hot-toast";
 import { initMetronomeNode, metronomeRpc } from "./audioworklet/client";
 import {
   METRONOME_PARAM_SPEC,
@@ -19,16 +18,7 @@ import { useAsync } from "./utils/query";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
-  return (
-    <>
-      <Toaster
-        toastOptions={{
-          className: "!bg-colorBgElevated !text-colorText",
-        }}
-      />
-      <AppInner />
-    </>
-  );
+  return <AppInner />;
 }
 
 function AppInner() {
@@ -37,7 +27,7 @@ function AppInner() {
     queryFn: () => initMetronomeNode(audioContext),
     onError(e) {
       console.error(e);
-      toast.error("failed to load metronome");
+      window.alert("failed to load metronome module");
     },
   });
 
