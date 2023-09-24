@@ -6,7 +6,7 @@ import {
   range,
   tinyassert,
 } from "@hiogawa/utils";
-import React from "preact/compat";
+import React from "react";
 import { initMetronomeNode, metronomeRpc } from "./audioworklet/client";
 import {
   METRONOME_PARAM_SPEC,
