@@ -1,5 +1,6 @@
 import { themeScriptPlugin } from "@hiogawa/theme-script/dist/vite";
 import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
 import unocss from "unocss/vite";
 import { defineConfig } from "vite";
 
@@ -14,5 +15,7 @@ export default defineConfig({
       storageKey: "toy-metronome:theme",
       defaultTheme: "dark",
     }),
+    // @ts-ignore bad peer-dep?
+    visualizer(),
   ],
 });
