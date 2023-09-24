@@ -1,4 +1,4 @@
-import React from "react";
+import React from "preact/compat";
 
 // toy tanstack query for one-shot promise on mount
 // cf. https://github.com/TanStack/query/blob/98c0803ff82d124d3f862ae8d207514480019d44/packages/react-query/src/useBaseQuery.ts#L59

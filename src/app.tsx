@@ -6,7 +6,7 @@ import {
   range,
   tinyassert,
 } from "@hiogawa/utils";
-import React from "react";
+import React from "preact/compat";
 import { initMetronomeNode, metronomeRpc } from "./audioworklet/client";
 import {
   METRONOME_PARAM_SPEC,
@@ -206,7 +206,7 @@ function MetronomdeNodeComponent() {
           <input
             className="antd-input text-center w-[80px]"
             value={temporary}
-            onChange={(e) => setTemporary(e.target.value)}
+            onChange={(e) => setTemporary(e.currentTarget.value)}
             onBlur={() => setTemporary(toFormat(value).toFixed(1))}
             onKeyUp={(e) => {
               tinyassert(e.target instanceof HTMLInputElement);
@@ -229,7 +229,9 @@ function MetronomdeNodeComponent() {
           max={toFormat(METRONOME_PARAM_SPEC[name].maxValue)}
           step={step}
           value={toFormat(value)}
-          onChange={(e) => onChange(name, fromFormat(e.target.valueAsNumber))}
+          onChange={(e) =>
+            onChange(name, fromFormat(e.currentTarget.valueAsNumber))
+          }
         />
       </div>
     );

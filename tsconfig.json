@@ -11,6 +11,11 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "WebWorker"],
     "types": ["vite/client"],
-    "jsx": "preserve"
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react-dom": ["./node_modules/preact/compat/"]
+    }
   }
 }

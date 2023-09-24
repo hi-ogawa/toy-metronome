@@ -1,5 +1,5 @@
 import { themeScriptPlugin } from "@hiogawa/theme-script/dist/vite";
-import react from "@vitejs/plugin-react";
+import react from "@preact/preset-vite";
 import unocss from "unocss/vite";
 import { defineConfig } from "vite";
 
@@ -9,7 +9,10 @@ export default defineConfig({
   },
   plugins: [
     unocss(),
-    react(),
+    react({
+      // for some reason, @vite/client throws "URL is not defined"
+      prefreshEnabled: false,
+    }),
     themeScriptPlugin({
       storageKey: "toy-metronome:theme",
       defaultTheme: "dark",
