@@ -10,8 +10,7 @@ export default defineConfig({
   plugins: [
     unocss(),
     react({
-      // for some reason, @vite/client throws "URL is not defined"
-      prefreshEnabled: false,
+      include: /\.tsx$/,
     }),
     themeScriptPlugin({
       storageKey: "toy-metronome:theme",
