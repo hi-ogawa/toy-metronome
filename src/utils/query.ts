@@ -1,24 +1,93 @@
 import React from "react";
 
-// toy tanstack query for one-shot promise on mount
-// cf. https://github.com/TanStack/query/blob/98c0803ff82d124d3f862ae8d207514480019d44/packages/react-query/src/useBaseQuery.ts#L59
+//
+// tiny-query
+//
 
-export function useAsync<T>(options: QueryOptions<T>) {
+// current features/limitation
+// - shared query
+// - fetch on mount
+// - only staleTime/gcTime = Infinity
+// - refetch/invalidate
+
+// todo (core)
+// - global query onError
+// - mutation
+
+// todo (react)
+// - reactive queryKey
+
+// cf.
+// https://tanstack.com/query/v5/docs/react/reference/QueryClient
+// https://tanstack.com/query/v5/docs/react/reference/QueryCache
+
+//
+// react adapter
+//
+
+export function useQuery<T>(options: QueryObserverOptions<T>) {
   const [observer] = React.useState(() => new QueryObserver(options));
-  React.useSyncExternalStore(observer.subscribe, observer.getSnapshot);
+  React.useSyncExternalStore(
+    observer.subscribe,
+    observer.getSnapshot,
+    observer.getSnapshot
+  );
   React.useEffect(() => observer.fetch(), []);
   return observer.getSnapshot();
 }
 
-type QueryOptions<T> = {
+//
+// framework-agnostic core
+//
+
+type QueryKey = unknown[];
+
+function serializeQueryKey(queryKey: QueryKey): string {
+  return JSON.stringify(queryKey);
+}
+
+interface QueryOptions<T> {
+  queryKey: QueryKey;
   queryFn: () => Promise<T>;
+}
+
+interface QueryObserverOptions<T> extends QueryOptions<T> {
   onSuccess?: (v: T) => void;
   onError?: (e: unknown) => void;
-};
+}
 
-class QueryObserver<T> {
-  listeners = new Set<() => void>();
-  promise: Promise<T> | undefined;
+export class QueryClient {
+  private cache = new Map<string, Query<unknown>>();
+
+  getQuery<T>(options: QueryOptions<T>): Query<T> {
+    const key = serializeQueryKey(options.queryKey);
+    const query = this.cache.get(key) ?? new Query(options.queryFn);
+    return query as Query<T>;
+  }
+
+  // TODO: no need these api? (QueryObserver can access Query.fetch directly)
+
+  // fetch<T>(options: QueryOptions<T>): Query<T> {
+  //   const key = serializeQueryKey(options.queryKey);
+  //   const query = this.cache.get(key) ?? new Query(options.queryFn);
+  //   return query as Query<T>;
+  // }
+
+  // invalidate(options: { queryKey: QueryKey }) {
+  //   const key = serializeQueryKey(options.queryKey);
+  //   const query = this.cache.get(key);
+  //   if (query) {
+  //     query.invalidate();
+  //   }
+  // }
+}
+
+// TODO: include in QueryObserverOptions?
+const defaultQueryClient = new QueryClient();
+
+class Query<T> {
+  private listeners = new Set<() => void>();
+  promise: Promise<void> | undefined;
   result:
     | {
         status: "loading";
@@ -36,36 +105,24 @@ class QueryObserver<T> {
         error: unknown;
       } = { status: "loading" };
 
-  constructor(private options: QueryOptions<T>) {}
+  constructor(private queryFn: QueryOptions<T>["queryFn"]) {}
 
   fetch() {
-    if (this.listeners.size === 0 || this.promise) {
-      return;
-    }
-    this.promise = this.options.queryFn();
-    this.promise
-      .then(
-        (data) => {
-          this.result = { status: "success", data };
-        },
-        (error) => {
-          this.result = { status: "error", error };
-        }
-      )
-      .finally(() => this.notify());
+    this.promise ??= (async () => {
+      try {
+        const data = await this.queryFn();
+        this.result = { status: "success", data };
+      } catch (error) {
+        this.result = { status: "error", error };
+      } finally {
+        this.notify();
+      }
+    })();
   }
 
-  notify() {
-    if (this.listeners.size === 0) {
-      return;
-    }
-    if (this.result.status === "success") {
-      this.options.onSuccess?.(this.result.data);
-    }
-    if (this.result.status === "error") {
-      this.options.onError?.(this.result.error);
-    }
-    this.listeners.forEach((l) => l());
+  invalidate() {
+    this.promise = undefined;
+    this.fetch();
   }
 
   subscribe = (listener: () => void) => {
@@ -74,4 +131,43 @@ class QueryObserver<T> {
   };
 
   getSnapshot = () => this.result;
+
+  private notify() {
+    this.listeners.forEach((f) => f());
+  }
+}
+
+class QueryObserver<T> {
+  listeners = new Set<() => void>();
+  query: Query<T>;
+
+  constructor(private options: QueryObserverOptions<T>) {
+    this.query = defaultQueryClient.getQuery(this.options);
+  }
+
+  fetch() {
+    this.query.fetch();
+  }
+
+  notify = () => {
+    const result = this.query.getSnapshot();
+    if (result.status === "success") {
+      this.options.onSuccess?.(result.data);
+    }
+    if (result.status === "error") {
+      this.options.onError?.(result.error);
+    }
+    this.listeners.forEach((l) => l());
+  };
+
+  subscribe = (listener: () => void) => {
+    const dispose = this.query.subscribe(this.notify);
+    this.listeners.add(listener);
+    return () => {
+      dispose();
+      this.listeners.delete(listener);
+    };
+  };
+
+  getSnapshot = () => this.query.getSnapshot();
 }

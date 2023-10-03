@@ -14,7 +14,7 @@ import {
 } from "./audioworklet/common";
 import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { useAsync } from "./utils/query";
+import { useQuery } from "./utils/query";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
@@ -23,7 +23,8 @@ export function App() {
 
 function AppInner() {
   // initialize audio worklet node
-  const initMetronomeQuery = useAsync({
+  const initMetronomeQuery = useQuery({
+    queryKey: ["initMetronomeQuery"],
     queryFn: () => initMetronomeNode(audioContext),
     onError(e) {
       console.error(e);
