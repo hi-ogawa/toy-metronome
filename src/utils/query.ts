@@ -27,12 +27,23 @@ import React from "react";
 
 export function useQuery<T>(options: QueryObserverOptions<T>) {
   const [observer] = React.useState(() => new QueryObserver(options));
+
   React.useSyncExternalStore(
     observer.subscribe,
     observer.getSnapshot,
     observer.getSnapshot
   );
-  React.useEffect(() => observer.fetch(), []);
+
+  React.useEffect(() => {
+    observer.fetch();
+  }, []);
+
+  React.useEffect(() => {
+    // TODO: reactive
+    observer;
+    options;
+  }, [options.queryKey]);
+
   return observer.getSnapshot();
 }
 
