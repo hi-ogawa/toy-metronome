@@ -8,28 +8,25 @@ import {
   serializeQueryKey,
 } from "./core";
 
-// still an ugly way to get away from react context...
-export function createQueryClientHooks(queryClient: QueryClient) {
-  function useQuery<T>(options: QueryObserverOptions<T>) {
-    const observer = React.useMemo(
-      () => new QueryObserver(queryClient, options),
-      [serializeQueryKey(options.queryKey)]
-    );
+export function useQuery<T>(options: QueryObserverOptions<T>) {
+  const observer = React.useMemo(
+    () => new QueryObserver(QueryClient.current, options),
+    [serializeQueryKey(options.queryKey)]
+  );
 
-    React.useSyncExternalStore(
-      observer.subscribe,
-      observer.getSnapshot,
-      observer.getSnapshot
-    );
+  React.useSyncExternalStore(
+    observer.subscribe,
+    observer.getSnapshot,
+    observer.getSnapshot
+  );
 
-    return observer.getSnapshot();
-  }
-
-  return { useQuery };
+  return observer.getSnapshot();
 }
 
 export function useMutation<V, T>(options: MueryObserverOptions<V, T>) {
-  const [observer] = React.useState(() => new MueryObserver(options));
+  const [observer] = React.useState(
+    () => new MueryObserver(QueryClient.current, options)
+  );
 
   // take latest value of mutationFn/onSuccess/onError
   React.useEffect(() => {

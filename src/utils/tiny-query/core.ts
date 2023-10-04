@@ -37,12 +37,21 @@ interface QueryClientOptions {
 export class QueryClient {
   private cache = new Map<string, Query<unknown>>();
 
-  constructor(public options: QueryClientOptions = {}) {}
+  constructor(public options: QueryClientOptions) {}
 
   build<T>(options: QueryOptions<T>): Query<T> {
     const key = serializeQueryKey(options.queryKey);
     const query = this.cache.get(key) ?? new Query(options.queryFn);
     return query as Query<T>;
+  }
+
+  //
+  // global instance to skip rather trivial react context...
+  //
+  static current: QueryClient;
+
+  static init(options: QueryClientOptions) {
+    this.current = new QueryClient(options);
   }
 }
 
@@ -157,10 +166,21 @@ export class MueryObserver<V, T> {
         error: unknown;
       } = { status: "idle" };
 
-  constructor(private options: MueryObserverOptions<V, T>) {}
+  constructor(
+    private client: QueryClient,
+    private options: MueryObserverOptions<V, T>
+  ) {
+    this.options = {
+      ...this.client.options.defaultOptions?.queries,
+      ...this.options,
+    };
+  }
 
   setOption(newOptions: MueryObserverOptions<V, T>) {
-    this.options = newOptions;
+    this.options = {
+      ...this.client.options.defaultOptions?.queries,
+      ...newOptions,
+    };
   }
 
   mutate = (variables: V) => {

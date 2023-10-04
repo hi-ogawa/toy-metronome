@@ -1,17 +1,18 @@
 import { QueryClient } from "./core";
-import { createQueryClientHooks } from "./react";
 
-const queryClient = new QueryClient({
+QueryClient.init({
   defaultOptions: {
     queries: {
       onError: (e) => {
-        console.error(e);
+        console.error("query error", e);
+        window.alert("Something went wrong...");
+      },
+    },
+    mutations: {
+      onError: (e) => {
+        console.error("mutation error", e);
         window.alert("Something went wrong...");
       },
     },
   },
 });
-
-const { useQuery } = createQueryClientHooks(queryClient);
-
-export { useQuery };
