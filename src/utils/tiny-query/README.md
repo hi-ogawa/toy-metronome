@@ -2,13 +2,13 @@
 
 ## features/limitation
 
-- shared query by key
+- shared queries by key
 - fetch on mount
 - only staleTime/gcTime = Infinity
+- mutation
 
 ## todo
 
-- mutation
 - stale data
 - refetch/invalidate
 
