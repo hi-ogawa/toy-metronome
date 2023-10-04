@@ -60,7 +60,7 @@ function AppInner() {
   return (
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-3 top-3 flex gap-3">
-        {initMetronomeQuery.status === "loading" && (
+        {initMetronomeQuery.status === "pending" && (
           <span className="antd-spin w-6 h-6"></span>
         )}
         <ThemeButton />

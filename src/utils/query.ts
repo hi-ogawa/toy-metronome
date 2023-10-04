@@ -13,6 +13,7 @@ import React from "react";
 // todo (core)
 // - global query onError
 // - mutation
+// - stale data
 
 // todo (react)
 // - reactive queryKey
@@ -26,23 +27,16 @@ import React from "react";
 //
 
 export function useQuery<T>(options: QueryObserverOptions<T>) {
-  const [observer] = React.useState(() => new QueryObserver(options));
+  const observer = React.useMemo(
+    () => new QueryObserver(options),
+    [serializeQueryKey(options.queryKey)]
+  );
 
   React.useSyncExternalStore(
     observer.subscribe,
     observer.getSnapshot,
     observer.getSnapshot
   );
-
-  React.useEffect(() => {
-    observer.fetch();
-  }, []);
-
-  React.useEffect(() => {
-    // TODO: reactive
-    observer;
-    options;
-  }, [options.queryKey]);
 
   return observer.getSnapshot();
 }
@@ -101,7 +95,7 @@ class Query<T> {
   promise: Promise<void> | undefined;
   result:
     | {
-        status: "loading";
+        status: "pending";
         data?: undefined;
         error?: undefined;
       }
@@ -114,7 +108,7 @@ class Query<T> {
         status: "error";
         data?: undefined;
         error: unknown;
-      } = { status: "loading" };
+      } = { status: "pending" };
 
   constructor(private queryFn: QueryOptions<T>["queryFn"]) {}
 
@@ -131,10 +125,12 @@ class Query<T> {
     })();
   }
 
-  invalidate() {
-    this.promise = undefined;
-    this.fetch();
-  }
+  // invalidate() {
+  //   this.promise = undefined;
+  //   this.result = { status: "pending" };
+  //   this.notify();
+  //   this.fetch();
+  // }
 
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -149,35 +145,37 @@ class Query<T> {
 }
 
 class QueryObserver<T> {
-  listeners = new Set<() => void>();
   query: Query<T>;
+  // private queryUnsubscribe?: () => void;
 
   constructor(private options: QueryObserverOptions<T>) {
     this.query = defaultQueryClient.getQuery(this.options);
   }
 
-  fetch() {
-    this.query.fetch();
-  }
-
-  notify = () => {
-    const result = this.query.getSnapshot();
-    if (result.status === "success") {
-      this.options.onSuccess?.(result.data);
-    }
-    if (result.status === "error") {
-      this.options.onError?.(result.error);
-    }
-    this.listeners.forEach((l) => l());
-  };
+  // update(newOptions: QueryObserverOptions<T>) {
+  //   this.options = newOptions;
+  //   const newQuery = defaultQueryClient.getQuery(this.options);
+  //   if (this.query !== newQuery) {
+  //     // tinyassert(this.queryUnsubscribe);
+  //     // this.queryUnsubscribe();
+  //     // this.query = newQuery;
+  //     // this.queryUnsubscribe = this.query.subscribe(this.notify);
+  //   }
+  //   this.query.fetch();
+  // }
 
   subscribe = (listener: () => void) => {
-    const dispose = this.query.subscribe(this.notify);
-    this.listeners.add(listener);
-    return () => {
-      dispose();
-      this.listeners.delete(listener);
-    };
+    this.query.fetch();
+    return this.query.subscribe(() => {
+      const result = this.query.getSnapshot();
+      if (result.status === "success") {
+        this.options.onSuccess?.(result.data);
+      }
+      if (result.status === "error") {
+        this.options.onError?.(result.error);
+      }
+      listener();
+    });
   };
 
   getSnapshot = () => this.query.getSnapshot();
