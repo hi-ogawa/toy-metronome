@@ -28,7 +28,7 @@ import React from "react";
 
 export function useQuery<T>(options: QueryObserverOptions<T>) {
   const observer = React.useMemo(
-    () => new QueryObserver(options),
+    () => new QueryObserver(defaultQueryClient, options),
     [serializeQueryKey(options.queryKey)]
   );
 
@@ -56,15 +56,27 @@ interface QueryOptions<T> {
   queryFn: () => Promise<T>;
 }
 
-interface QueryObserverOptions<T> extends QueryOptions<T> {
+interface QueryCallbackOptions<T> {
   onSuccess?: (v: T) => void;
   onError?: (e: unknown) => void;
+}
+
+interface QueryObserverOptions<T>
+  extends QueryOptions<T>,
+    QueryCallbackOptions<T> {}
+
+interface QueryClientOptions {
+  defaultOptions?: {
+    queries?: QueryCallbackOptions<unknown>;
+  };
 }
 
 export class QueryClient {
   private cache = new Map<string, Query<unknown>>();
 
-  getQuery<T>(options: QueryOptions<T>): Query<T> {
+  constructor(public options: QueryClientOptions = {}) {}
+
+  build<T>(options: QueryOptions<T>): Query<T> {
     const key = serializeQueryKey(options.queryKey);
     const query = this.cache.get(key) ?? new Query(options.queryFn);
     return query as Query<T>;
@@ -87,8 +99,17 @@ export class QueryClient {
   // }
 }
 
-// TODO: include in QueryObserverOptions?
-const defaultQueryClient = new QueryClient();
+// TODO: react context?
+const defaultQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      onError: (e) => {
+        console.error(e);
+        window.alert("Something went wrong...");
+      },
+    },
+  },
+});
 
 class Query<T> {
   private listeners = new Set<() => void>();
@@ -148,8 +169,15 @@ class QueryObserver<T> {
   query: Query<T>;
   // private queryUnsubscribe?: () => void;
 
-  constructor(private options: QueryObserverOptions<T>) {
-    this.query = defaultQueryClient.getQuery(this.options);
+  constructor(
+    private client: QueryClient,
+    private options: QueryObserverOptions<T>
+  ) {
+    this.options = {
+      ...client.options.defaultOptions?.queries,
+      ...this.options,
+    };
+    this.query = this.client.build(this.options);
   }
 
   // update(newOptions: QueryObserverOptions<T>) {

@@ -26,10 +26,6 @@ function AppInner() {
   const initMetronomeQuery = useQuery({
     queryKey: ["initMetronomeQuery"],
     queryFn: () => initMetronomeNode(audioContext),
-    onError(e) {
-      console.error(e);
-      window.alert("failed to load metronome module");
-    },
   });
 
   // sync metronome play state with UI
