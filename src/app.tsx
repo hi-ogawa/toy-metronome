@@ -14,7 +14,7 @@ import {
 } from "./audioworklet/common";
 import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { useQuery } from "./utils/query";
+import { useQuery } from "./utils/tiny-query/example";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {

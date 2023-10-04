@@ -1,49 +1,6 @@
-import React from "react";
+export type QueryKey = unknown[];
 
-//
-// tiny-query
-//
-
-// current features/limitation
-// - shared query by key
-// - fetch on mount
-// - only staleTime/gcTime = Infinity
-
-// todo
-// - mutation
-// - stale data
-// - refetch/invalidate
-
-// cf.
-// https://tanstack.com/query/v5/docs/react/reference/QueryClient
-// https://tanstack.com/query/v5/docs/react/reference/QueryCache
-
-//
-// react adapter
-//
-
-export function useQuery<T>(options: QueryObserverOptions<T>) {
-  const observer = React.useMemo(
-    () => new QueryObserver(defaultQueryClient, options),
-    [serializeQueryKey(options.queryKey)]
-  );
-
-  React.useSyncExternalStore(
-    observer.subscribe,
-    observer.getSnapshot,
-    observer.getSnapshot
-  );
-
-  return observer.getSnapshot();
-}
-
-//
-// framework-agnostic core
-//
-
-type QueryKey = unknown[];
-
-function serializeQueryKey(queryKey: QueryKey): string {
+export function serializeQueryKey(queryKey: QueryKey): string {
   return JSON.stringify(queryKey);
 }
 
@@ -57,7 +14,7 @@ interface QueryCallbackOptions<T> {
   onError?: (e: unknown) => void;
 }
 
-interface QueryObserverOptions<T>
+export interface QueryObserverOptions<T>
   extends QueryOptions<T>,
     QueryCallbackOptions<T> {}
 
@@ -79,19 +36,7 @@ export class QueryClient {
   }
 }
 
-// TODO: react context?
-const defaultQueryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      onError: (e) => {
-        console.error(e);
-        window.alert("Something went wrong...");
-      },
-    },
-  },
-});
-
-class Query<T> {
+export class Query<T> {
   private listeners = new Set<() => void>();
   promise: Promise<void> | undefined;
   result:
@@ -138,7 +83,7 @@ class Query<T> {
   }
 }
 
-class QueryObserver<T> {
+export class QueryObserver<T> {
   private query: Query<T>;
 
   constructor(
