@@ -9,6 +9,11 @@ interface QueryOptions<T> {
   queryFn: () => Promise<T>;
 }
 
+interface MueryOptions<V, T> {
+  mutationKey?: QueryKey;
+  mutationFn: (arg: V) => Promise<T>;
+}
+
 interface QueryCallbackOptions<T> {
   onSuccess?: (v: T) => void;
   onError?: (e: unknown) => void;
@@ -18,9 +23,14 @@ export interface QueryObserverOptions<T>
   extends QueryOptions<T>,
     QueryCallbackOptions<T> {}
 
+export interface MueryObserverOptions<V, T>
+  extends MueryOptions<V, T>,
+    QueryCallbackOptions<T> {}
+
 interface QueryClientOptions {
   defaultOptions?: {
     queries?: QueryCallbackOptions<unknown>;
+    mutations?: QueryCallbackOptions<unknown>;
   };
 }
 
@@ -36,7 +46,7 @@ export class QueryClient {
   }
 }
 
-export class Query<T> {
+class Query<T> {
   private listeners = new Set<() => void>();
   promise: Promise<void> | undefined;
   result:
@@ -112,4 +122,83 @@ export class QueryObserver<T> {
   };
 
   getSnapshot = () => this.query.getSnapshot();
+}
+
+//
+// mutation
+//
+
+export class MueryObserver<V, T> {
+  private listeners = new Set<() => void>();
+  promise: Promise<void> | undefined;
+  result:
+    | {
+        status: "idle";
+        variables?: undefined;
+        data?: undefined;
+        error?: undefined;
+      }
+    | {
+        status: "pending";
+        variables: V;
+        data?: undefined;
+        error?: undefined;
+      }
+    | {
+        status: "success";
+        variables: V;
+        data: T;
+        error?: undefined;
+      }
+    | {
+        status: "error";
+        variables: V;
+        data?: undefined;
+        error: unknown;
+      } = { status: "idle" };
+
+  constructor(private options: MueryObserverOptions<V, T>) {}
+
+  setOption(newOptions: MueryObserverOptions<V, T>) {
+    this.options = newOptions;
+  }
+
+  mutate = (variables: V) => {
+    this.result = {
+      status: "pending",
+      variables,
+    };
+    this.notify();
+    this.promise = (async () => {
+      try {
+        const data = await this.options.mutationFn(variables);
+        this.result = { status: "success", variables, data };
+      } catch (error) {
+        this.result = { status: "error", variables, error };
+      } finally {
+        this.notify();
+      }
+    })();
+  };
+
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
+
+  getSnapshot = () => this.result;
+
+  private notify() {
+    if (this.listeners.size === 0) {
+      return;
+    }
+    const result = this.getSnapshot();
+    if (result.status === "success") {
+      this.options.onSuccess?.(result.data);
+    }
+    if (result.status === "error") {
+      this.options.onError?.(result.error);
+    }
+    this.listeners.forEach((f) => f());
+  }
 }
