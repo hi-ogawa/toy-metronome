@@ -5,18 +5,14 @@ import React from "react";
 //
 
 // current features/limitation
-// - shared query
+// - shared query by key
 // - fetch on mount
 // - only staleTime/gcTime = Infinity
-// - refetch/invalidate
 
-// todo (core)
-// - global query onError
+// todo
 // - mutation
 // - stale data
-
-// todo (react)
-// - reactive queryKey
+// - refetch/invalidate
 
 // cf.
 // https://tanstack.com/query/v5/docs/react/reference/QueryClient
@@ -81,22 +77,6 @@ export class QueryClient {
     const query = this.cache.get(key) ?? new Query(options.queryFn);
     return query as Query<T>;
   }
-
-  // TODO: no need these api? (QueryObserver can access Query.fetch directly)
-
-  // fetch<T>(options: QueryOptions<T>): Query<T> {
-  //   const key = serializeQueryKey(options.queryKey);
-  //   const query = this.cache.get(key) ?? new Query(options.queryFn);
-  //   return query as Query<T>;
-  // }
-
-  // invalidate(options: { queryKey: QueryKey }) {
-  //   const key = serializeQueryKey(options.queryKey);
-  //   const query = this.cache.get(key);
-  //   if (query) {
-  //     query.invalidate();
-  //   }
-  // }
 }
 
 // TODO: react context?
@@ -146,13 +126,6 @@ class Query<T> {
     })();
   }
 
-  // invalidate() {
-  //   this.promise = undefined;
-  //   this.result = { status: "pending" };
-  //   this.notify();
-  //   this.fetch();
-  // }
-
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -166,8 +139,7 @@ class Query<T> {
 }
 
 class QueryObserver<T> {
-  query: Query<T>;
-  // private queryUnsubscribe?: () => void;
+  private query: Query<T>;
 
   constructor(
     private client: QueryClient,
@@ -179,18 +151,6 @@ class QueryObserver<T> {
     };
     this.query = this.client.build(this.options);
   }
-
-  // update(newOptions: QueryObserverOptions<T>) {
-  //   this.options = newOptions;
-  //   const newQuery = defaultQueryClient.getQuery(this.options);
-  //   if (this.query !== newQuery) {
-  //     // tinyassert(this.queryUnsubscribe);
-  //     // this.queryUnsubscribe();
-  //     // this.query = newQuery;
-  //     // this.queryUnsubscribe = this.query.subscribe(this.notify);
-  //   }
-  //   this.query.fetch();
-  // }
 
   subscribe = (listener: () => void) => {
     this.query.fetch();
