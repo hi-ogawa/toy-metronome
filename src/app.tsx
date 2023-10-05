@@ -14,7 +14,7 @@ import {
 } from "./audioworklet/common";
 import { audioContext } from "./utils/audio-context";
 import { decibelToGain, gainToDecibel } from "./utils/conversion";
-import { useAsync } from "./utils/query";
+import { useQuery } from "./utils/tiny-query/react";
 import { useStableRef } from "./utils/use-stable-ref";
 
 export function App() {
@@ -23,12 +23,9 @@ export function App() {
 
 function AppInner() {
   // initialize audio worklet node
-  const initMetronomeQuery = useAsync({
+  const initMetronomeQuery = useQuery({
+    queryKey: ["initMetronomeQuery"],
     queryFn: () => initMetronomeNode(audioContext),
-    onError(e) {
-      console.error(e);
-      window.alert("failed to load metronome module");
-    },
   });
 
   // sync metronome play state with UI
@@ -59,7 +56,7 @@ function AppInner() {
   return (
     <div className="h-full w-full flex justify-center items-center relative">
       <div className="absolute right-3 top-3 flex gap-3">
-        {initMetronomeQuery.status === "loading" && (
+        {initMetronomeQuery.status === "pending" && (
           <span className="antd-spin w-6 h-6"></span>
         )}
         <ThemeButton />
