@@ -1,6 +1,6 @@
-export type QueryKey = unknown[];
+type QueryKey = unknown[];
 
-export function serializeQueryKey(queryKey: QueryKey): string {
+function serializeQueryKey(queryKey: QueryKey): string {
   return JSON.stringify(queryKey);
 }
 
@@ -41,14 +41,18 @@ export class QueryClient {
 
   build<T>(options: QueryOptions<T>): Query<T> {
     const key = serializeQueryKey(options.queryKey);
-    const query = this.cache.get(key) ?? new Query(options.queryFn);
+    let query = this.cache.get(key);
+    if (!query) {
+      query = new Query(options.queryFn);
+      this.cache.set(key, query);
+    }
     return query as Query<T>;
   }
 
   //
   // global instance to skip rather trivial react context...
   //
-  static current: QueryClient;
+  static current?: QueryClient;
 
   static init(options: QueryClientOptions) {
     this.current = new QueryClient(options);
@@ -103,15 +107,19 @@ class Query<T> {
 }
 
 export class QueryObserver<T> {
-  private query: Query<T>;
+  query!: Query<T>;
 
   constructor(
     private client: QueryClient,
     private options: QueryObserverOptions<T>
   ) {
+    this.setOption(options);
+  }
+
+  setOption(newOptions: QueryObserverOptions<T>) {
     this.options = {
-      ...client.options.defaultOptions?.queries,
-      ...this.options,
+      ...this.client.options.defaultOptions?.queries,
+      ...newOptions,
     };
     this.query = this.client.build(this.options);
   }
@@ -170,15 +178,12 @@ export class MueryObserver<V, T> {
     private client: QueryClient,
     private options: MueryObserverOptions<V, T>
   ) {
-    this.options = {
-      ...this.client.options.defaultOptions?.queries,
-      ...this.options,
-    };
+    this.setOption(options);
   }
 
   setOption(newOptions: MueryObserverOptions<V, T>) {
     this.options = {
-      ...this.client.options.defaultOptions?.queries,
+      ...this.client.options.defaultOptions?.mutations,
       ...newOptions,
     };
   }

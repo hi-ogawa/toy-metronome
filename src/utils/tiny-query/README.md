@@ -9,7 +9,7 @@
 
 ## todo
 
-- stale data
+- stale time/data
 - refetch/invalidate
 
 ## links

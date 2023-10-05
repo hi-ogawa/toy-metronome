@@ -1,3 +1,4 @@
+import { tinyassert } from "@hiogawa/utils";
 import React from "react";
 import {
   MueryObserver,
@@ -5,17 +6,20 @@ import {
   QueryClient,
   QueryObserver,
   type QueryObserverOptions,
-  serializeQueryKey,
 } from "./core";
 
 export function useQuery<T>(options: QueryObserverOptions<T>) {
-  const observer = React.useMemo(
-    () => new QueryObserver(QueryClient.current, options),
-    [serializeQueryKey(options.queryKey)]
-  );
+  const [observer] = React.useState(() => {
+    tinyassert(QueryClient.current);
+    return new QueryObserver(QueryClient.current, options);
+  });
+
+  React.useEffect(() => {
+    observer.setOption(options);
+  }, [options]);
 
   React.useSyncExternalStore(
-    observer.subscribe,
+    React.useCallback(observer.subscribe, [observer.query]),
     observer.getSnapshot,
     observer.getSnapshot
   );
@@ -24,11 +28,11 @@ export function useQuery<T>(options: QueryObserverOptions<T>) {
 }
 
 export function useMutation<V, T>(options: MueryObserverOptions<V, T>) {
-  const [observer] = React.useState(
-    () => new MueryObserver(QueryClient.current, options)
-  );
+  const [observer] = React.useState(() => {
+    tinyassert(QueryClient.current);
+    return new MueryObserver(QueryClient.current, options);
+  });
 
-  // take latest value of mutationFn/onSuccess/onError
   React.useEffect(() => {
     observer.setOption(options);
   }, [observer, options]);
