@@ -188,9 +188,11 @@ function MetronomdeNodeComponent() {
     // okay-ish to run hook in render helper since no conditionals
     const [temporary, setTemporary] = useState(toFormat(value).toFixed(1));
 
-    // TODO: setState in useEffect crashes?
     useEffect(() => {
-      setTemporary(toFormat(value).toFixed(1));
+      // TODO: tiny-react doesn't support synchronous setState in useEffect (yet)
+      queueMicrotask(() => {
+        setTemporary(toFormat(value).toFixed(1));
+      });
     }, [value]);
 
     return (
