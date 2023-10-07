@@ -26,8 +26,8 @@ devDependencies:
     specifier: 1.1.2-pre.0
     version: 1.1.2-pre.0(prettier@2.8.0)(typescript@5.2.2)
   '@hiogawa/unocss-preset-antd':
-    specifier: 2.2.1-pre.4
-    version: 2.2.1-pre.4(unocss@0.55.7)
+    specifier: 2.2.1-pre.7
+    version: 2.2.1-pre.7(unocss@0.55.7)
   '@iconify-json/ri':
     specifier: ^1.1.4
     version: 1.1.4
@@ -515,8 +515,8 @@ packages:
         optional: true
     dev: false
 
-  /@hiogawa/unocss-preset-antd@2.2.1-pre.4(unocss@0.55.7):
-    resolution: {integrity: sha512-wcW1m/mlYWkbb8VxDAY9PBaZZ2e+4c6gQuiO5InEGsmAea6sQrFC+OnMBD7EH25nkZvyBKzrC9M1Fhw+pRfgxw==}
+  /@hiogawa/unocss-preset-antd@2.2.1-pre.7(unocss@0.55.7):
+    resolution: {integrity: sha512-gwY0T8FpFzvHE3I2bShDFKRFAlf1dxgAeaLkfGy7VpNkVr7NkrS3hIUb3An95zAjQWSvgP90t+p1e8AaFW8oXw==}
     peerDependencies:
       unocss: '*'
     dependencies:
