@@ -9,8 +9,8 @@ dependencies:
     specifier: 0.0.4-pre.3
     version: 0.0.4-pre.3(vite@4.4.9)
   '@hiogawa/tiny-react':
-    specifier: 0.0.1-pre.4
-    version: 0.0.1-pre.4(vite@4.4.9)
+    specifier: 0.0.1-pre.5
+    version: 0.0.1-pre.5(vite@4.4.9)
   '@hiogawa/tiny-rpc':
     specifier: 0.2.3-pre.11
     version: 0.2.3-pre.11
@@ -491,8 +491,8 @@ packages:
       vite: 4.4.9
     dev: false
 
-  /@hiogawa/tiny-react@0.0.1-pre.4(vite@4.4.9):
-    resolution: {integrity: sha512-/XajuYLujLUwOSgq+2vO6EZDQBhjwbbGXB11iS4mEbLiwWV7IwPfuZKSaf+pqYLet9LK05OApMeAyslooXE0bA==}
+  /@hiogawa/tiny-react@0.0.1-pre.5(vite@4.4.9):
+    resolution: {integrity: sha512-hlSlXAC7S/AcRIjHF4yQyO0gLQAWtc6nTgW3xOq0Aqhlh6sTazQuU9NbCruRVvz6PdI54R5/GFdAGDmLWIkx9w==}
     peerDependencies:
       vite: '*'
     peerDependenciesMeta:
