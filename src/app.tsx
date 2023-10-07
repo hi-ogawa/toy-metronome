@@ -189,7 +189,6 @@ function MetronomdeNodeComponent() {
     const [temporary, setTemporary] = useState(toFormat(value).toFixed(1));
 
     useEffect(() => {
-      // TODO: tiny-react doesn't support synchronous setState in useEffect (yet)
       queueMicrotask(() => {
         setTemporary(toFormat(value).toFixed(1));
       });
@@ -203,7 +202,7 @@ function MetronomdeNodeComponent() {
           <input
             className="antd-input text-center w-[80px]"
             value={temporary}
-            onchange={(e) => setTemporary(e.currentTarget.value)}
+            oninput={(e) => setTemporary(e.currentTarget.value)}
             onblur={() => setTemporary(toFormat(value).toFixed(1))}
             onkeyup={(e) => {
               if (e.key === "Enter") {
@@ -225,9 +224,9 @@ function MetronomdeNodeComponent() {
           max={String(toFormat(METRONOME_PARAM_SPEC[name].maxValue))}
           step={String(step)}
           value={String(toFormat(value))}
-          onchange={(e) =>
-            onChange(name, fromFormat(e.currentTarget.valueAsNumber))
-          }
+          oninput={(e) => {
+            onChange(name, fromFormat(e.currentTarget.valueAsNumber));
+          }}
         />
       </div>
     );
