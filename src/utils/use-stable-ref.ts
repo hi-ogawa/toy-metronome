@@ -1,7 +1,7 @@
-import React from "react";
+import { useRef } from "@hiogawa/tiny-react";
 
 export function useStableRef<T>(value: T) {
-  const ref = React.useRef(value);
+  const ref = useRef(value);
   ref.current = value;
   return ref;
 }

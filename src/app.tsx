@@ -1,12 +1,7 @@
 import { getTheme, setTheme } from "@hiogawa/theme-script";
+import { useEffect, useState } from "@hiogawa/tiny-react";
 import { useTinyStoreStorage } from "@hiogawa/tiny-store/dist/react";
-import {
-  objectEntries,
-  objectMapValues,
-  range,
-  tinyassert,
-} from "@hiogawa/utils";
-import React from "react";
+import { objectEntries, objectMapValues, range } from "@hiogawa/utils";
 import { initMetronomeNode, metronomeRpc } from "./audioworklet/client";
 import {
   METRONOME_PARAM_SPEC,
@@ -32,7 +27,7 @@ function AppInner() {
   });
 
   // sync metronome play state with UI
-  const [playing, setPlaying] = React.useState(false);
+  const [playing, setPlaying] = useState(false);
 
   async function toggle() {
     if (initMetronomeQuery.status !== "success") return;
@@ -79,7 +74,7 @@ function AppInner() {
               "antd-btn antd-btn-primary w-full flex justify-center items-center py-0.5",
               !playing && "brightness-75"
             )}
-            onClick={(e) => {
+            onclick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               toggle();
@@ -112,7 +107,7 @@ function MetronomdeNodeComponent() {
 
   // effect inside loop since object keys are fixed
   for (const [k, [v]] of objectEntries(storages)) {
-    React.useEffect(() => {
+    useEffect(() => {
       metronomeRpc.setParam(k, v);
     }, [v]);
   }
@@ -191,10 +186,10 @@ function MetronomdeNodeComponent() {
     const value = formValues[name];
 
     // okay-ish to run hook in render helper since no conditionals
-    const [temporary, setTemporary] = React.useState(
-      toFormat(value).toFixed(1)
-    );
-    React.useEffect(() => {
+    const [temporary, setTemporary] = useState(toFormat(value).toFixed(1));
+
+    // TODO: setState in useEffect crashes?
+    useEffect(() => {
       setTemporary(toFormat(value).toFixed(1));
     }, [value]);
 
@@ -206,10 +201,9 @@ function MetronomdeNodeComponent() {
           <input
             className="antd-input text-center w-[80px]"
             value={temporary}
-            onChange={(e) => setTemporary(e.target.value)}
-            onBlur={() => setTemporary(toFormat(value).toFixed(1))}
-            onKeyUp={(e) => {
-              tinyassert(e.target instanceof HTMLInputElement);
+            onchange={(e) => setTemporary(e.currentTarget.value)}
+            onblur={() => setTemporary(toFormat(value).toFixed(1))}
+            onkeyup={(e) => {
               if (e.key === "Enter") {
                 onChange(name, fromFormat(Number(temporary)));
               }
@@ -225,11 +219,13 @@ function MetronomdeNodeComponent() {
         <input
           className="w-full"
           type="range"
-          min={toFormat(METRONOME_PARAM_SPEC[name].minValue)}
-          max={toFormat(METRONOME_PARAM_SPEC[name].maxValue)}
-          step={step}
-          value={toFormat(value)}
-          onChange={(e) => onChange(name, fromFormat(e.target.valueAsNumber))}
+          min={String(toFormat(METRONOME_PARAM_SPEC[name].minValue))}
+          max={String(toFormat(METRONOME_PARAM_SPEC[name].maxValue))}
+          step={String(step)}
+          value={String(toFormat(value))}
+          onchange={(e) =>
+            onChange(name, fromFormat(e.currentTarget.valueAsNumber))
+          }
         />
       </div>
     );
@@ -241,7 +237,7 @@ function BpmDetectionButton({
 }: {
   onChange: (value: number) => void;
 }) {
-  const [times, setTimes] = React.useState<number[]>([]);
+  const [times, setTimes] = useState<number[]>([]);
 
   function onClick() {
     const now = Date.now();
@@ -257,7 +253,7 @@ function BpmDetectionButton({
     <button
       title="Tap it to derive BPM"
       className="antd-btn antd-btn-ghost flex items-center"
-      onClick={() => onClick()}
+      onclick={() => onClick()}
     >
       <span className="i-ri-fingerprint-line w-4 h-4"></span>
     </button>
@@ -277,7 +273,7 @@ function ThemeButton() {
   return (
     <button
       className="antd-btn antd-btn-ghost flex items-center"
-      onClick={() => setTheme(getTheme() === "dark" ? "light" : "dark")}
+      onclick={() => setTheme(getTheme() === "dark" ? "light" : "dark")}
     >
       <span className="dark:i-ri-sun-line light:i-ri-moon-line !w-6 !h-6" />
     </button>
@@ -290,7 +286,7 @@ function useDocumentEvent<K extends keyof DocumentEventMap>(
 ) {
   const handlerRef = useStableRef(handler);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handler = (e: DocumentEventMap[K]) => {
       handlerRef.current(e);
     };
