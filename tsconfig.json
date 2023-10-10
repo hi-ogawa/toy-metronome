@@ -11,6 +11,7 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "WebWorker"],
     "types": ["vite/client"],
-    "jsx": "preserve"
+    "jsx": "react-jsx",
+    "jsxImportSource": "@hiogawa/tiny-react"
   }
 }

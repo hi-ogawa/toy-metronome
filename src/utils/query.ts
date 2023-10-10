@@ -1,13 +1,13 @@
-import React from "react";
+import { useEffect, useState, useSyncExternalStore } from "@hiogawa/tiny-react";
 
 // toy tanstack query for one-shot promise on mount
 // cf. https://github.com/TanStack/query/blob/98c0803ff82d124d3f862ae8d207514480019d44/packages/react-query/src/useBaseQuery.ts#L59
 
 export function useAsync<T>(options: QueryOptions<T>) {
-  const [observer] = React.useState(() => new QueryObserver(options));
-  React.useSyncExternalStore(observer.subscribe, observer.getSnapshot);
-  React.useEffect(() => observer.fetch(), []);
-  return observer.getSnapshot();
+  const [observer] = useState(() => new QueryObserver(options));
+  const result = useSyncExternalStore(observer.subscribe, observer.getSnapshot);
+  useEffect(() => observer.fetch(), []);
+  return result;
 }
 
 type QueryOptions<T> = {
