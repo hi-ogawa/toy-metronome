@@ -4,8 +4,8 @@ import {
   proxyTinyRpc,
 } from "@hiogawa/tiny-rpc";
 import { once } from "@hiogawa/utils";
-import AUDIOWORKLET_URL from "./build/index.js?url";
 import { METRONOME_PROCESSOR_NAME } from "./common";
+import AUDIOWORKLET_URL from "./index?worker&url";
 import type { MetronomeProcessor } from "./metronome";
 
 // singleton
