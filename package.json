@@ -4,12 +4,10 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist src/audioworklet/build src/service-worker/build .vercel/output",
-    "dev": "pnpm build:tsup && pnpm run --stream /^dev:/",
-    "dev:tsup": "tsup --watch",
+    "dev": "pnpm run --stream /^dev:/",
     "dev:vite": "vite --no-clearScreen",
     "dev:tsc": "tsc --watch --preserveWatchOutput",
     "build": "pnpm run --seq /^build:/",
-    "build:tsup": "tsup",
     "build:vite": "vite build",
     "build:vercel": "bash misc/vercel/build.sh",
     "preview": "vite preview",
@@ -37,7 +35,6 @@
     "@tsconfig/strictest": "^2.0.2",
     "@vitejs/plugin-react": "^4.0.4",
     "prettier": "^2.8.0",
-    "tsup": "^7.2.0",
     "typescript": "^5.2.2",
     "unocss": "^0.55.7",
     "vite": "^4.4.9"
