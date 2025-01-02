@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { castF32ToS16, encodeWav } from "./src/utils/wav.ts";
+import { encodeWav, f32_to_s16, s16_to_f32 } from "./src/utils/wav.ts";
 
 // node --experimental-strip-types generate-wav.ts
 
@@ -10,9 +10,11 @@ import { castF32ToS16, encodeWav } from "./src/utils/wav.ts";
 // - use click sample?
 
 function main() {
+  // constant
+  const sampleRate = 48000;
+
   // params
   const duration = 4;
-  const sampleRate = 48000;
 
   // generators params
   const bpm = 140;
@@ -23,6 +25,12 @@ function main() {
   // generators
   const sine = new Sine();
   const envelope = new Envelope();
+  const samplePlayer = new SamplePlayer(
+    Float32Array.from(
+      new Uint16Array(fs.readFileSync("./click-high.raw")),
+      s16_to_f32
+    )
+  );
 
   // buffer (f32)
   const numSamples = duration * sampleRate;
@@ -31,6 +39,8 @@ function main() {
     let sineValue = sine.next(frequency / sampleRate);
     let envelopeValue = envelope.next(1 / sampleRate, attack, decay, 60 / bpm);
     buffer_f32[i] = sineValue * envelopeValue;
+
+    samplePlayer.next;
   }
 
   // buffer (s16)
@@ -51,7 +61,7 @@ function main() {
   // output as .wav (pcm_f32le, mono)
   fs.writeFileSync(
     "./test.wav",
-    encodeWav(castF32ToS16(buffer_f32), sampleRate)
+    encodeWav(Int16Array.from(buffer_f32, f32_to_s16), sampleRate)
   );
 }
 
@@ -76,6 +86,32 @@ class Envelope {
       value = 1 - (this.phase - attack) / decay;
     }
     this.phase = (this.phase + delta) % interval;
+    return value;
+  }
+}
+
+class SamplePlayer {
+  private phase: number = 0; // sample
+  private samples: Float32Array;
+  private playing = false;
+
+  constructor(samples: Float32Array) {
+    this.samples = samples;
+  }
+
+  next(hit: boolean) {
+    if (hit) {
+      this.playing = true;
+      this.phase = 0;
+    }
+    let value = 0;
+    if (this.playing) {
+      value = this.samples[this.phase];
+    }
+    this.phase++;
+    if (this.phase === this.samples.length) {
+      this.playing = false;
+    }
     return value;
   }
 }

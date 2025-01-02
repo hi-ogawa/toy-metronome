@@ -3,5 +3,5 @@ dist
 .vercel
 *.raw
 *.wav
-!click-high.wav
-!click-low.wav
+!click-high.*
+!click-low.*

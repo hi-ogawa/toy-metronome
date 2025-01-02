@@ -54,13 +54,10 @@ export function encodeWav(data: Int16Array, f: number) {
   }
 }
 
-export function castF32ToS16(buffer: Float32Array) {
-  const buffer_s16 = new Int16Array(buffer.length);
-  for (let i = 0; i < buffer.length; i++) {
-    buffer_s16[i] = Math.max(
-      -32768,
-      Math.min(32767, Math.round(buffer[i] * 32767))
-    );
-  }
-  return buffer_s16;
+export function f32_to_s16(x: number) {
+  return Math.max(-32768, Math.min(32767, Math.round(x * 32767)));
+}
+
+export function s16_to_f32(x: number) {
+  return x / 32767;
 }
