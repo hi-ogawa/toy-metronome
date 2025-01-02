@@ -108,7 +108,7 @@ function encode(data: Int16Array, f: number) {
 }
 
 class Sine {
-  private phase: number = 0;
+  private phase: number = 0; // [0, 1)
 
   next(delta: number): number {
     const value = Math.sin(2 * Math.PI * this.phase);
@@ -118,15 +118,10 @@ class Sine {
 }
 
 class Envelope {
-  playing = true;
-  private phase: number = 0;
+  private phase: number = 0; // in second
 
   next(delta: number, attack: number, decay: number, interval: number) {
     let value = 0.0;
-    // keep playing until envelop finishes to avoid glitch
-    if (!this.playing && this.phase <= delta) {
-      return value;
-    }
     if (this.phase < attack) {
       value = this.phase / attack;
     } else if (this.phase < attack + decay) {
